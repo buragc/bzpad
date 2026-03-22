@@ -18,24 +18,26 @@ struct bzpadApp: App {
 private struct iOSRootView: View {
 
     @Environment(TaskStore.self) private var store
-    @State private var selectedTab: Tab = .matrix
 
-    enum Tab { case matrix, archive }
+    // Named AppTab to avoid shadowing SwiftUI's Tab view (iOS 18+)
+    enum AppTab { case matrix, archive }
+    @State private var selectedTab: AppTab = .matrix
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Matrix", systemImage: "square.grid.2x2", value: .matrix) {
-                NavigationStack {
-                    MatrixView()
-                        .navigationTitle("bzpad")
-                        .toolbar { toolbarItems }
-                }
+            NavigationStack {
+                MatrixView()
+                    .navigationTitle("bzpad")
+                    .toolbar { toolbarItems }
             }
-            Tab("Archive", systemImage: "archivebox", value: .archive) {
-                NavigationStack {
-                    ArchiveView()
-                }
+            .tabItem { Label("Matrix", systemImage: "square.grid.2x2") }
+            .tag(AppTab.matrix)
+
+            NavigationStack {
+                ArchiveView()
             }
+            .tabItem { Label("Archive", systemImage: "archivebox") }
+            .tag(AppTab.archive)
         }
     }
 
@@ -47,7 +49,6 @@ private struct iOSRootView: View {
             } label: {
                 Image(systemName: "arrow.uturn.backward")
             }
-            .disabled(true) // TODO: expose undoStack.isEmpty from store
         }
     }
 }

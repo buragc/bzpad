@@ -23,23 +23,11 @@ struct MatrixView: View {
             }
             .padding(12)
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color.groupedBackground)
         .overlay(alignment: .bottom) {
             QuickAddView(defaultQuadrant: quickAddTarget)
                 .padding(.horizontal)
                 .padding(.bottom, 12)
         }
     }
-}
-
-// MARK: – Supporting extensions
-
-extension Quadrant: CaseIterable {
-    public static var allCases: [Quadrant] {
-        [.doFirst, .schedule, .delegate, .eliminate]
-    }
-}
-
-extension Quadrant: Identifiable {
-    public var id: Int { rawValue }
 }

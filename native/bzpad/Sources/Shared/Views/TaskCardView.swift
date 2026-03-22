@@ -46,6 +46,16 @@ struct TaskCardView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .contentShape(Rectangle())
+        .draggable(task.id.uuidString) {
+            // Drag preview: compact title label
+            Text(task.title)
+                .font(.subheadline)
+                .lineLimit(2)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .frame(maxWidth: 240)
+        }
         .contextMenu {
             moveMenu
             Divider()
@@ -92,7 +102,7 @@ struct TaskCardView: View {
             .foregroundStyle(.secondary)
             .padding(.horizontal, 5)
             .padding(.vertical, 2)
-            .background(Color(.tertiarySystemFill))
+            .background(Color.tertiaryFill)
             .clipShape(Capsule())
     }
 

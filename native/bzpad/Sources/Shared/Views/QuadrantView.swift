@@ -7,6 +7,7 @@ struct QuadrantView: View {
     @Binding var quickAddTarget: Quadrant?
 
     @Environment(TaskStore.self) private var store
+    @State private var isDropTarget = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -14,9 +15,30 @@ struct QuadrantView: View {
             Divider()
             taskList
         }
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(Color.secondaryGroupedBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .frame(minHeight: 220)
+        // Drop destination — accepts task UUID strings dragged from TaskCardView
+        .dropDestination(for: String.self) { items, _ in
+            guard let uuidString = items.first,
+                  let id = UUID(uuidString: uuidString) else { return false }
+            store.moveTask(id: id, to: quadrant)
+            return true
+        } isTargeted: { targeted in
+            isDropTarget = targeted
+        }
+        // Visual drop indicator: colored border + subtle tint
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(quadrant.color.opacity(isDropTarget ? 0.8 : 0), lineWidth: 2)
+        }
+        .background {
+            if isDropTarget {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(quadrant.color.opacity(0.06))
+            }
+        }
+        .animation(.easeInOut(duration: 0.15), value: isDropTarget)
     }
 
     // MARK: – Header
@@ -66,11 +88,12 @@ struct QuadrantView: View {
     }
 
     private var emptyState: some View {
-        Text("No tasks")
+        Text("Drop here")
             .font(.caption)
-            .foregroundStyle(.quaternary)
+            .foregroundStyle(isDropTarget ? quadrant.color : Color.secondary.opacity(0.4))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 24)
+            .animation(.easeInOut(duration: 0.15), value: isDropTarget)
     }
 }
 

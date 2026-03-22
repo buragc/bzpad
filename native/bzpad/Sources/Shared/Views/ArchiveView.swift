@@ -19,7 +19,7 @@ struct ArchiveView: View {
                         archivedRow(task)
                     }
                 }
-                .listStyle(.insetGrouped)
+                .listStyle(.inset)
             }
         }
         .navigationTitle("Archive")
