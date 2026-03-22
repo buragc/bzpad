@@ -1,0 +1,247 @@
+import Foundation
+import Observation
+
+/// Central state container for the app. Observable so SwiftUI views re-render automatically.
+/// Mirrors the structure of useTaskStore.ts from the React prototype.
+@MainActor
+@Observable
+public final class TaskStore {
+
+    // MARK: – State
+
+    public private(set) var tasksByQuadrant: [Quadrant: [Task]] = [
+        .doFirst:   [],
+        .schedule:  [],
+        .delegate:  [],
+        .eliminate: [],
+    ]
+    public private(set) var archivedTasks: [Task] = []
+    public var selectedIds: Set<UUID> = []
+    public var focusedId: UUID? = nil
+    public var editingId: UUID? = nil
+    public var searchText: String = ""
+    public var filterQuadrants: Set<Quadrant> = []
+    public var filterTags: [String] = []
+    public var viewMode: ViewMode = .matrix
+    public var darkMode: DarkMode = .system
+    public var isFocusMode: Bool = false         // T13 — Q1 + overdue only
+
+    private var undoStack: [[Quadrant: [Task]]] = []    // max 50 snapshots
+    private var archivedUndoStack: [Task] = []
+
+    private let repo: TaskRepository
+
+    public init(repository: TaskRepository = TaskRepository()) {
+        self.repo = repository
+        _Concurrency.Task { await self.loadAll() }
+    }
+
+    // MARK: – Load
+
+    private func loadAll() async {
+        do {
+            var byQuadrant: [Quadrant: [Task]] = [:]
+            for q in [Quadrant.doFirst, .schedule, .delegate, .eliminate] {
+                byQuadrant[q] = try repo.fetchActive(in: q)
+            }
+            tasksByQuadrant = byQuadrant
+            archivedTasks   = try repo.fetchArchived()
+        } catch {
+            // Log in production; for now surface in debug
+            print("[TaskStore] loadAll failed: \(error)")
+        }
+    }
+
+    // MARK: – CRUD
+
+    public func addTask(title: String, quadrant: Quadrant? = nil) {
+        let dueDate  = DateParser.parse(title)
+        let cleanTitle = DateParser.strippingDatePhrases(
+            from: TagExtractor.strippingHashtags(from: title)
+        )
+        let tags     = TagExtractor.extract(from: title)
+        let detected = quadrant ?? QuadrantDetector.detect(from: title)
+
+        let task = Task(
+            title:    cleanTitle.isEmpty ? title : cleanTitle,
+            quadrant: detected,
+            dueDate:  dueDate,
+            tags:     tags,
+            source:   dueDate != nil ? .parsed : .manual
+        )
+
+        pushUndo()
+
+        do {
+            try repo.insert(task)
+            tasksByQuadrant[detected, default: []].append(task)
+        } catch {
+            print("[TaskStore] addTask failed: \(error)")
+        }
+    }
+
+    public func updateTask(_ task: Task) {
+        var updated = task
+        updated.updatedAt = Date()
+        pushUndo()
+        do {
+            try repo.update(updated)
+            replaceInQuadrant(updated)
+        } catch {
+            print("[TaskStore] updateTask failed: \(error)")
+        }
+    }
+
+    public func deleteTask(id: UUID) {
+        pushUndo()
+        do {
+            try repo.delete(id: id)
+            removeFromAllQuadrants(id: id)
+            selectedIds.remove(id)
+            if focusedId == id { focusedId = nil }
+        } catch {
+            print("[TaskStore] deleteTask failed: \(error)")
+        }
+    }
+
+    public func deleteTasks(ids: Set<UUID>) {
+        pushUndo()
+        do {
+            try repo.deleteAll(ids: Array(ids))
+            for id in ids { removeFromAllQuadrants(id: id) }
+            selectedIds.subtract(ids)
+            if let focused = focusedId, ids.contains(focused) { focusedId = nil }
+        } catch {
+            print("[TaskStore] deleteTasks failed: \(error)")
+        }
+    }
+
+    public func completeTask(id: UUID) {
+        pushUndo()
+        do {
+            try repo.complete(id: id)
+            if let task = findTask(id: id) {
+                var completed = task
+                completed.completedAt = Date()
+                completed.isArchived  = true
+                removeFromAllQuadrants(id: id)
+                archivedTasks.insert(completed, at: 0)
+            }
+            selectedIds.remove(id)
+        } catch {
+            print("[TaskStore] completeTask failed: \(error)")
+        }
+    }
+
+    public func moveTask(id: UUID, to quadrant: Quadrant) {
+        guard var task = findTask(id: id), task.quadrant != quadrant else { return }
+        pushUndo()
+        do {
+            try repo.move(id: id, to: quadrant)
+            removeFromAllQuadrants(id: id)
+            task.quadrant  = quadrant
+            task.updatedAt = Date()
+            tasksByQuadrant[quadrant, default: []].append(task)
+        } catch {
+            print("[TaskStore] moveTask failed: \(error)")
+        }
+    }
+
+    public func archiveTasks(ids: Set<UUID>) {
+        pushUndo()
+        for id in ids { completeTask(id: id) }
+    }
+
+    // MARK: – Undo
+
+    public func undo() {
+        guard !undoStack.isEmpty else { return }
+        let previous = undoStack.removeLast()
+        tasksByQuadrant = previous
+        // Reload archived from DB to stay consistent
+        _Concurrency.Task { [weak self] in
+            guard let self else { return }
+            self.archivedTasks = (try? self.repo.fetchArchived()) ?? []
+        }
+    }
+
+    private func pushUndo() {
+        undoStack.append(tasksByQuadrant)
+        if undoStack.count > 50 { undoStack.removeFirst() }
+    }
+
+    // MARK: – Filtering
+
+    public func activeTasks(in quadrant: Quadrant) -> [Task] {
+        var tasks = tasksByQuadrant[quadrant] ?? []
+        if isFocusMode && quadrant != .doFirst {
+            // Focus mode: non-Q1 quadrants are empty except overdue tasks
+            tasks = tasks.filter {
+                UrgencyCalculator.level(dueDate: $0.dueDate) == .overdue
+            }
+        }
+        return filteredTasks(tasks)
+    }
+
+    public func filteredTasks(_ tasks: [Task]) -> [Task] {
+        tasks.filter { task in
+            if !searchText.isEmpty,
+               !task.title.lowercased().contains(searchText.lowercased()) { return false }
+            if !filterQuadrants.isEmpty,
+               !filterQuadrants.contains(task.quadrant) { return false }
+            if !filterTags.isEmpty,
+               !filterTags.contains(where: { task.tags.contains($0) }) { return false }
+            return true
+        }
+    }
+
+    public var allTags: [String] {
+        var seen = Set<String>()
+        for tasks in tasksByQuadrant.values {
+            for task in tasks { task.tags.forEach { seen.insert($0) } }
+        }
+        return seen.sorted()
+    }
+
+    // MARK: – Selection
+
+    public func clearSelection() {
+        selectedIds = []
+    }
+
+    // MARK: – Helpers
+
+    private func findTask(id: UUID) -> Task? {
+        for tasks in tasksByQuadrant.values {
+            if let t = tasks.first(where: { $0.id == id }) { return t }
+        }
+        return nil
+    }
+
+    private func replaceInQuadrant(_ task: Task) {
+        guard var list = tasksByQuadrant[task.quadrant] else { return }
+        if let idx = list.firstIndex(where: { $0.id == task.id }) {
+            list[idx] = task
+            tasksByQuadrant[task.quadrant] = list
+        }
+    }
+
+    private func removeFromAllQuadrants(id: UUID) {
+        for quadrant in tasksByQuadrant.keys {
+            tasksByQuadrant[quadrant]?.removeAll(where: { $0.id == id })
+        }
+    }
+}
+
+// MARK: – Supporting enums
+
+public enum ViewMode: String, Codable, Sendable {
+    case matrix
+    case archive
+}
+
+public enum DarkMode: String, Codable, Sendable {
+    case system
+    case light
+    case dark
+}
