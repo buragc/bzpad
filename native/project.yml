@@ -22,8 +22,6 @@ targets:
         createIntermediateGroups: true
       - path: bzpad/Sources/iOS
         createIntermediateGroups: true
-    resources:
-      - path: bzpad/Resources/Assets.xcassets
     dependencies:
       - package: EisenhowerCore
     info:
@@ -62,8 +60,6 @@ targets:
         createIntermediateGroups: true
       - path: bzpad/Sources/macOS
         createIntermediateGroups: true
-    resources:
-      - path: bzpad/Resources/Assets.xcassets
     dependencies:
       - package: EisenhowerCore
     info:

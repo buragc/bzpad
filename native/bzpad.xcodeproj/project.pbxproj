@@ -15,6 +15,7 @@
 		1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
 		1EE094BD8D265C7E7F52DA14 /* UrgencyCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E32B76A8CDE435A1CDC2E7 /* UrgencyCalculatorTests.swift */; };
 		3323E00369C5C36D9C09CD6F /* DateParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */; };
+		393A34E8F20C2D2B7D296940 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */; };
 		397DC92C81BB8576943F9F79 /* MatrixView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E778CB0555E26883DD5ACB88 /* MatrixView.swift */; };
 		481EE69A31F6D2F364414219 /* QuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */; };
 		4EC53647BCE796FE0B7E14F6 /* bzpadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB8D3E425D47545BE73965E /* bzpadApp.swift */; };
@@ -27,6 +28,7 @@
 		9A4CDA80FBE4D18DB96EC85B /* TagExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */; };
 		9C37B231A1CEEE24DE0980B5 /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
 		A09CBFB30618F519FD19B766 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
+		A9E64E5F85AAE628EC05FC61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */; };
 		B29269EEF7A518BAD62B10AB /* QuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */; };
 		DAC8D35B33F863CC3901D800 /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */; };
 		E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9121AC6C1B449217D38A39E1 /* TaskCardView.swift */; };
@@ -39,6 +41,7 @@
 		3E6255947EAA6E2143F2806F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "bzpad-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateParserTests.swift; sourceTree = "<group>"; };
+		58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5BB8D3E425D47545BE73965E /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
 		75E32B76A8CDE435A1CDC2E7 /* UrgencyCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrgencyCalculatorTests.swift; sourceTree = "<group>"; };
 		8B879268AAAFF09EC544C463 /* QuadrantDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuadrantDetectorTests.swift; sourceTree = "<group>"; };
@@ -92,6 +95,7 @@
 			children = (
 				F4DE56ABB972D6891A2C8FCF /* Components */,
 				E9AB89078323C762DF2D603E /* Views */,
+				58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -238,6 +242,7 @@
 			buildConfigurationList = 010B4BE8958FE26609EF95C8 /* Build configuration list for PBXNativeTarget "bzpad-iOS" */;
 			buildPhases = (
 				E2EB9EDE1C73099BC0CABE20 /* Sources */,
+				3B854A398A36B784CB0A821F /* Resources */,
 				D953A5D6FDD69A229F64839B /* Frameworks */,
 			);
 			buildRules = (
@@ -257,6 +262,7 @@
 			buildConfigurationList = FBAB8CCFC3A92E3F22EDC11C /* Build configuration list for PBXNativeTarget "bzpad-macOS" */;
 			buildPhases = (
 				63F4E8EA4E0EE1A119CFC6D9 /* Sources */,
+				377B9B4B25E213DE33CB5056 /* Resources */,
 				3F1520BFB40604F0F3854A3C /* Frameworks */,
 			);
 			buildRules = (
@@ -305,6 +311,25 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		377B9B4B25E213DE33CB5056 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				393A34E8F20C2D2B7D296940 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3B854A398A36B784CB0A821F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9E64E5F85AAE628EC05FC61 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		54234BCFA8E0566FEA8DD057 /* Sources */ = {
