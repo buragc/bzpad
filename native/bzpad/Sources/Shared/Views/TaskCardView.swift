@@ -6,8 +6,16 @@ struct TaskCardView: View {
     let task: Task
 
     @Environment(TaskStore.self) private var store
+    @AppStorage("textSizeStep") private var textSizeStep: Int = 0
     @State private var isEditing = false
     @State private var editText = ""
+
+    /// Each step adjusts the base size by ±15 %.
+    private var titleFont: Font {
+        let base = 14.0
+        let scale = 1.0 + Double(textSizeStep) * 0.15
+        return .system(size: base * scale)
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -25,7 +33,7 @@ struct TaskCardView: View {
             // Task content
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.title)
-                    .font(.subheadline)
+                    .font(titleFont)
                     .foregroundStyle(.primary)
                     .lineLimit(3)
 

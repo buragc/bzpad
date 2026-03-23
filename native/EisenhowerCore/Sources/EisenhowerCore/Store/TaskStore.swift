@@ -8,6 +8,8 @@ public final class TaskStore {
 
     // MARK: – State
 
+    public private(set) var inboxItems: [InboxItem] = []
+
     public private(set) var tasksByQuadrant: [Quadrant: [Task]] = [
         .doFirst:   [],
         .schedule:  [],
@@ -38,6 +40,11 @@ public final class TaskStore {
 
     // MARK: – Setup
 
+    private func loadInbox() async {
+        let raw = await repo.fetchOtherReminders()
+        inboxItems = raw.map { InboxItem(id: $0.id, title: $0.title) }
+    }
+
     private func setup() async {
         do {
             let granted = try await repo.requestAccess()
@@ -53,10 +60,12 @@ public final class TaskStore {
 
         await repo.reload()
         loadFromCache()
+        await loadInbox()
 
         repo.observeChanges { [weak self] in
             guard let self else { return }
             self.loadFromCache()
+            _Concurrency.Task { await self.loadInbox() }
         }
     }
 
@@ -264,7 +273,12 @@ public final class TaskStore {
     }
 }
 
-// MARK: – Supporting enums
+// MARK: – Supporting types
+
+public struct InboxItem: Identifiable, Sendable {
+    public let id: String    // EK calendarItemIdentifier
+    public let title: String
+}
 
 public enum ViewMode: String, Codable, Sendable {
     case matrix

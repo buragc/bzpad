@@ -39,7 +39,7 @@
 /* Begin PBXFileReference section */
 		34DABD631D71D57BA1BFD5D5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3E6255947EAA6E2143F2806F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "bzpad-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; name = "bzpad-iOS.app"; path = bzpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateParserTests.swift; sourceTree = "<group>"; };
 		58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5BB8D3E425D47545BE73965E /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
@@ -49,13 +49,13 @@
 		9121AC6C1B449217D38A39E1 /* TaskCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCardView.swift; sourceTree = "<group>"; };
 		97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformColors.swift; sourceTree = "<group>"; };
 		A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
-		A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bzpad-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7340CCBDEBE1B8B9A2DD82E /* bzpad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bzpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2AF2475B9019C5F0D39DA24 /* QuickAddPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddPanel.swift; sourceTree = "<group>"; };
 		B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddView.swift; sourceTree = "<group>"; };
 		D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagExtractorTests.swift; sourceTree = "<group>"; };
 		D571F90582E46E765C1C1F89 /* QuadrantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuadrantView.swift; sourceTree = "<group>"; };
 		D78D7BE57738A52BD3EDE528 /* EisenhowerCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EisenhowerCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DB6FFCF6945ABC2BA20A33A6 /* EisenhowerCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EisenhowerCore; path = EisenhowerCore; sourceTree = SOURCE_ROOT; };
+		DB6FFCF6945ABC2BA20A33A6 /* EisenhowerCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = EisenhowerCore; sourceTree = SOURCE_ROOT; };
 		DEE3FA541E2ADB193805E085 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		E778CB0555E26883DD5ACB88 /* MatrixView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixView.swift; sourceTree = "<group>"; };
 		E9E4AA4A9CBAAD2CF86475BF /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
@@ -191,7 +191,7 @@
 			isa = PBXGroup;
 			children = (
 				3F3215005B75B83E9AD05531 /* bzpad-iOS.app */,
-				A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */,
+				A7340CCBDEBE1B8B9A2DD82E /* bzpad.app */,
 				D78D7BE57738A52BD3EDE528 /* EisenhowerCoreTests.xctest */,
 			);
 			name = Products;
@@ -274,7 +274,7 @@
 				807CD6149D3CD4ED19D35C52 /* EisenhowerCore */,
 			);
 			productName = "bzpad-macOS";
-			productReference = A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */;
+			productReference = A7340CCBDEBE1B8B9A2DD82E /* bzpad.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -285,8 +285,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 194411ED9308030F59D02991 /* Build configuration list for PBXProject "bzpad" */;
 			developmentRegion = en;
@@ -444,7 +442,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = bzpad/Sources/macOS/bzpad.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = LKV23MKRSH;
 				INFOPLIST_FILE = bzpad/Sources/macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -453,6 +454,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.buragc.bzpad-macOS";
 				PRODUCT_NAME = bzpad;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
 			};
@@ -572,7 +574,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = bzpad/Sources/macOS/bzpad.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = LKV23MKRSH;
 				INFOPLIST_FILE = bzpad/Sources/macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -581,6 +586,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.buragc.bzpad-macOS";
 				PRODUCT_NAME = bzpad;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
 			};

@@ -18,6 +18,17 @@ private func carbonHotKeyCallback(
     return noErr
 }
 
+// MARK: – Key-capable borderless panel
+
+/// NSPanel subclass that allows becoming the key window even without a title bar.
+/// Required so the embedded NSTextField (via NSHostingView) can receive keyboard events.
+private final class QuickAddPanel: NSPanel {
+    override var canBecomeKey: Bool  { true  }
+    override var canBecomeMain: Bool { false }
+}
+
+// MARK: – Global hotkey
+
 final class GlobalHotKeyManager: @unchecked Sendable {
 
     static let shared = GlobalHotKeyManager()
@@ -65,7 +76,7 @@ final class GlobalHotKeyManager: @unchecked Sendable {
 final class QuickAddPanelController {
 
     static let shared = QuickAddPanelController()
-    private var panel: NSPanel?
+    private var panel: QuickAddPanel?
     private var store: TaskStore?
     private init() {}
 
@@ -74,10 +85,10 @@ final class QuickAddPanelController {
     func show() {
         guard let store else { return }
         if panel == nil { makePanel(store: store) }
-        // Re-center each time and post notification to reset the text field + focus
         panel?.center()
-        panel?.makeKeyAndOrderFront(nil)
+        // Activate first so the panel can actually become key
         NSApp.activate(ignoringOtherApps: true)
+        panel?.makeKeyAndOrderFront(nil)
         NotificationCenter.default.post(name: .quickAddPanelWillShow, object: nil)
     }
 
@@ -90,9 +101,9 @@ final class QuickAddPanelController {
     }
 
     private func makePanel(store: TaskStore) {
-        let p = NSPanel(
+        let p = QuickAddPanel(
             contentRect: NSRect(x: 0, y: 0, width: 620, height: 90),
-            styleMask: [.borderless],
+            styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )

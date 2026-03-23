@@ -36,6 +36,9 @@ public protocol TaskRepositoryProtocol {
     /// Subscribe to external changes (e.g. user edits in Reminders.app).
     /// `handler` is called on the main actor.
     func observeChanges(handler: @MainActor @Sendable @escaping () -> Void)
+
+    /// Fetch reminders from non-bzpad Reminder lists (for the sidebar inbox).
+    func fetchOtherReminders() async -> [(id: String, title: String)]
 }
 
 // MARK: – Default no-ops (GRDB doesn't need these)
@@ -44,4 +47,5 @@ public extension TaskRepositoryProtocol {
     func requestAccess() async throws -> Bool { true }
     func reload() async {}
     func observeChanges(handler: @MainActor @Sendable @escaping () -> Void) {}
+    func fetchOtherReminders() async -> [(id: String, title: String)] { [] }
 }

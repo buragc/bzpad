@@ -6,6 +6,7 @@ struct SettingsView: View {
     @AppStorage("colorScheme") private var darkMode: DarkMode = .system
     #if os(macOS)
     @AppStorage("showMenuBarItem") private var showMenuBarItem: Bool = true
+    @AppStorage("reminderListPrefix") private var reminderListPrefix: String = "bzpad"
     #endif
 
     var body: some View {
@@ -29,6 +30,16 @@ struct SettingsView: View {
             #if os(macOS)
             Section("Menu Bar") {
                 Toggle("Show menu bar icon", isOn: $showMenuBarItem)
+            }
+
+            Section {
+                TextField("Prefix", text: $reminderListPrefix)
+                    .textFieldStyle(.roundedBorder)
+                Text("Lists are named \"\(reminderListPrefix) – Do First\" etc. Changing this creates new lists; existing tasks won't appear until you restore the old prefix.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text("Reminder List Prefix")
             }
             #endif
         }

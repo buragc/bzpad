@@ -7,6 +7,7 @@ struct bzpadApp: App {
     @State private var store = TaskStore()
     @AppStorage("colorScheme") private var darkMode: DarkMode = .system
     @AppStorage("showMenuBarItem") private var showMenuBarItem: Bool = true
+    @AppStorage("textSizeStep") private var textSizeStep: Int = 0
 
     var body: some Scene {
         WindowGroup {
@@ -24,6 +25,12 @@ struct bzpadApp: App {
                 Button("Undo") { store.undo() }
                     .keyboardShortcut("z", modifiers: .command)
             }
+            CommandGroup(after: .toolbar) {
+                Button("Larger Text")  { textSizeStep = min(textSizeStep + 1, 3) }
+                    .keyboardShortcut("+", modifiers: .command)
+                Button("Smaller Text") { textSizeStep = max(textSizeStep - 1, -3) }
+                    .keyboardShortcut("-", modifiers: .command)
+            }
         }
 
         // Native macOS Preferences window — opens with Cmd+,
@@ -33,9 +40,11 @@ struct bzpadApp: App {
         }
 
         // Menu bar item — isInserted binding toggles visibility without a SceneBuilder conditional
+        // .menu style enables keyboard shortcut display in menu items
         MenuBarExtra("bzpad", systemImage: "square.grid.2x2", isInserted: $showMenuBarItem) {
             MenuBarMenuView(store: store)
         }
+        .menuBarExtraStyle(.menu)
     }
 }
 
@@ -55,6 +64,7 @@ private struct MenuBarMenuView: View {
         .keyboardShortcut("o", modifiers: [.command])
 
         Button("Quick Add Task") {
+            QuickAddPanelController.shared.configure(store: store)
             QuickAddPanelController.shared.show()
         }
         .keyboardShortcut("/", modifiers: [.command, .shift])
@@ -103,15 +113,64 @@ private struct macOSRootView: View {
     }
 
     private var sidebar: some View {
-        List(selection: $selection) {
-            Section("Workspace") {
-                Label("Matrix", systemImage: "square.grid.2x2")
-                    .tag(SidebarItem.matrix)
-                Label("Archive", systemImage: "archivebox")
-                    .tag(SidebarItem.archive)
+        VStack(spacing: 0) {
+            List(selection: $selection) {
+                Section("Workspace") {
+                    Label("Matrix", systemImage: "square.grid.2x2")
+                        .tag(SidebarItem.matrix)
+                    Label("Archive", systemImage: "archivebox")
+                        .tag(SidebarItem.archive)
+                }
+            }
+            .listStyle(.sidebar)
+
+            Divider()
+
+            inboxPanel
+        }
+        .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
+    }
+
+    private var inboxPanel: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text("Inbox")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if !store.inboxItems.isEmpty {
+                    Text("\(store.inboxItems.count)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 10)
+            .padding(.bottom, 4)
+
+            if store.inboxItems.isEmpty {
+                Text("No other reminders")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 10)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(store.inboxItems) { item in
+                            Text(item.title)
+                                .font(.caption)
+                                .lineLimit(2)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .draggable("inbox:\(item.title)")
+                        }
+                    }
+                }
+                .frame(maxHeight: 220)
+                .padding(.bottom, 8)
             }
         }
-        .listStyle(.sidebar)
-        .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
     }
 }

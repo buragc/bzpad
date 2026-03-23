@@ -20,12 +20,22 @@ struct QuadrantView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // Drop destination covers the full quadrant panel
+        // Drop destination covers the full quadrant panel.
+        // Accepts two payload formats:
+        //   "<UUID>"        — existing task being moved between quadrants
+        //   "inbox:<title>" — inbox reminder being categorised into this quadrant
         .dropDestination(for: String.self) { items, _ in
-            guard let uuidString = items.first,
-                  let id = UUID(uuidString: uuidString) else { return false }
-            store.moveTask(id: id, to: quadrant)
-            return true
+            guard let payload = items.first else { return false }
+            if let id = UUID(uuidString: payload) {
+                store.moveTask(id: id, to: quadrant)
+                return true
+            }
+            if payload.hasPrefix("inbox:") {
+                let title = String(payload.dropFirst("inbox:".count))
+                store.addTask(title: title, quadrant: quadrant)
+                return true
+            }
+            return false
         } isTargeted: { targeted in
             isDropTarget = targeted
         }

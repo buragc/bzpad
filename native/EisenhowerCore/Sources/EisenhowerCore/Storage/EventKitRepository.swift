@@ -25,14 +25,27 @@ public final class EventKitRepository: TaskRepositoryProtocol {
 
     public init() {}
 
-    // MARK: – Calendar names
+    // MARK: – Calendar names (dynamic prefix from user settings)
 
-    private static let calendarNames: [Quadrant: String] = [
-        .doFirst:   "bzpad – Do First",
-        .schedule:  "bzpad – Schedule",
-        .delegate:  "bzpad – Delegate",
-        .eliminate: "bzpad – Eliminate",
-    ]
+    private var listPrefix: String {
+        UserDefaults.standard.string(forKey: "reminderListPrefix") ?? "bzpad"
+    }
+
+    private func calendarName(for quadrant: Quadrant) -> String {
+        let suffix: String
+        switch quadrant {
+        case .doFirst:   suffix = "Do First"
+        case .schedule:  suffix = "Schedule"
+        case .delegate:  suffix = "Delegate"
+        case .eliminate: suffix = "Eliminate"
+        }
+        return "\(listPrefix) – \(suffix)"
+    }
+
+    /// All calendar names currently managed by this repository.
+    private var allManagedCalendarNames: Set<String> {
+        Set(Quadrant.allCases.map { calendarName(for: $0) })
+    }
 
     // MARK: – TaskRepositoryProtocol: Lifecycle
 
@@ -176,6 +189,30 @@ public final class EventKitRepository: TaskRepositoryProtocol {
         activeCache[quadrant, default: []].append(task)
     }
 
+    // MARK: – TaskRepositoryProtocol: Inbox
+
+    public func fetchOtherReminders() async -> [(id: String, title: String)] {
+        let managed = allManagedCalendarNames
+        let otherCals = ekStore.calendars(for: .reminder)
+            .filter { !managed.contains($0.title) }
+        guard !otherCals.isEmpty else { return [] }
+
+        let predicate = ekStore.predicateForReminders(in: otherCals)
+        return await withCheckedContinuation { cont in
+            ekStore.fetchReminders(matching: predicate) { results in
+                DispatchQueue.main.async {
+                    let items = (results ?? [])
+                        .filter { !$0.isCompleted }
+                        .compactMap { r -> (id: String, title: String)? in
+                            guard let title = r.title, !title.isEmpty else { return nil }
+                            return (id: r.calendarItemIdentifier, title: title)
+                        }
+                    cont.resume(returning: items)
+                }
+            }
+        }
+    }
+
     // MARK: – Private: Load
 
     /// Sendable snapshot of EKReminder — read on whatever thread EK delivers,
@@ -243,9 +280,9 @@ public final class EventKitRepository: TaskRepositoryProtocol {
 
     // MARK: – Private: Calendar management
 
-    /// Returns an existing "bzpad" calendar for `quadrant`, or `nil` if not yet created.
+    /// Returns an existing managed calendar for `quadrant`, or `nil` if not yet created.
     private func existingCalendar(for quadrant: Quadrant) -> EKCalendar? {
-        let name = Self.calendarNames[quadrant]!
+        let name = calendarName(for: quadrant)
         return ekStore.calendars(for: .reminder).first { $0.title == name }
     }
 
@@ -254,7 +291,7 @@ public final class EventKitRepository: TaskRepositoryProtocol {
         if let existing = existingCalendar(for: quadrant) { return existing }
 
         let cal = EKCalendar(for: .reminder, eventStore: ekStore)
-        cal.title  = Self.calendarNames[quadrant]!
+        cal.title  = calendarName(for: quadrant)
         cal.source = preferredSource() ?? ekStore.defaultCalendarForNewReminders()?.source
 
         guard cal.source != nil else {
