@@ -11,14 +11,16 @@ struct QuadrantView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            // Header is always pinned here — it never moves regardless of task count
             header
             Divider()
-            taskList
+            // Tasks scroll independently within their quadrant panel
+            ScrollView {
+                taskList
+            }
         }
-        .background(Color.secondaryGroupedBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .frame(minHeight: 220)
-        // Drop destination — accepts task UUID strings dragged from TaskCardView
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Drop destination covers the full quadrant panel
         .dropDestination(for: String.self) { items, _ in
             guard let uuidString = items.first,
                   let id = UUID(uuidString: uuidString) else { return false }
@@ -27,16 +29,15 @@ struct QuadrantView: View {
         } isTargeted: { targeted in
             isDropTarget = targeted
         }
-        // Visual drop indicator: colored border + subtle tint
         .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(quadrant.color.opacity(isDropTarget ? 0.8 : 0), lineWidth: 2)
+            Rectangle()
+                .fill(quadrant.color.opacity(isDropTarget ? 0.07 : 0))
+                .allowsHitTesting(false)
         }
-        .background {
-            if isDropTarget {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(quadrant.color.opacity(0.06))
-            }
+        .overlay {
+            Rectangle()
+                .strokeBorder(quadrant.color.opacity(isDropTarget ? 0.6 : 0), lineWidth: 1.5)
+                .allowsHitTesting(false)
         }
         .animation(.easeInOut(duration: 0.15), value: isDropTarget)
     }
@@ -63,7 +64,7 @@ struct QuadrantView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 14)
         .padding(.vertical, 10)
     }
 
@@ -71,24 +72,23 @@ struct QuadrantView: View {
 
     private var taskList: some View {
         let tasks = store.activeTasks(in: quadrant)
-        return Group {
+        return LazyVStack(spacing: 0) {
             if tasks.isEmpty {
                 emptyState
             } else {
-                LazyVStack(spacing: 0) {
-                    ForEach(tasks) { task in
-                        TaskCardView(task: task)
-                        if task.id != tasks.last?.id {
-                            Divider().padding(.leading, 12)
-                        }
+                ForEach(tasks) { task in
+                    TaskCardView(task: task)
+                    if task.id != tasks.last?.id {
+                        Divider().padding(.leading, 14)
                     }
                 }
             }
         }
+        .padding(.bottom, 60) // clearance for QuickAddView overlay
     }
 
     private var emptyState: some View {
-        Text("Drop here")
+        Text(isDropTarget ? "Drop here" : "No tasks")
             .font(.caption)
             .foregroundStyle(isDropTarget ? quadrant.color : Color.secondary.opacity(0.4))
             .frame(maxWidth: .infinity)

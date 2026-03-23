@@ -1,8 +1,8 @@
 import Foundation
 import GRDB
 
-/// CRUD operations for tasks. All methods run on the GRDB writer/reader queue.
-public struct TaskRepository: Sendable {
+/// CRUD operations for tasks backed by SQLite/GRDB. All methods run on the GRDB writer/reader queue.
+public struct TaskRepository: TaskRepositoryProtocol {
 
     private let db: AppDatabase
 
@@ -50,7 +50,7 @@ public struct TaskRepository: Sendable {
 
     @discardableResult
     public func insert(_ task: Task) throws -> Task {
-        var task = task
+        let task = task
         try db.pool.write { db in
             try task.insert(db)
         }
@@ -58,7 +58,7 @@ public struct TaskRepository: Sendable {
     }
 
     public func update(_ task: Task) throws {
-        var task = task
+        let task = task
         try db.pool.write { db in
             try task.update(db)
         }

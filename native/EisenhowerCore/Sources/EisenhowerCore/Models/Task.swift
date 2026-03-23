@@ -6,11 +6,13 @@ import GRDB
 // 2 = Not Urgent + Important (Schedule)
 // 3 = Urgent + Not Important (Delegate)
 // 4 = Not Urgent + Not Important (Eliminate)
-public enum Quadrant: Int, Codable, Sendable, DatabaseValueConvertible {
+public enum Quadrant: Int, Codable, Sendable, DatabaseValueConvertible, CaseIterable, Identifiable {
     case doFirst = 1
     case schedule = 2
     case delegate = 3
     case eliminate = 4
+
+    public var id: Int { rawValue }
 
     public var label: String {
         switch self {
@@ -50,11 +52,15 @@ public struct Task: Identifiable, Codable, Equatable, Sendable {
     public var quadrant: Quadrant
     public var dueDate: Date?
     public var createdAt: Date
-    public var updatedAt: Date        // needed for CloudKit conflict resolution
+    public var updatedAt: Date
     public var completedAt: Date?
     public var isArchived: Bool
-    public var tags: [String]         // stored as JSON in SQLite
-    public var clusterId: UUID?
+    public var tags: [String]
+    /// Cluster membership — encoded as `@clusterName` in EventKit notes.
+    /// nil means the task is not in a cluster.
+    public var clusterName: String?
+    /// Free-form notes visible in Reminders.app. Stored before the metadata line.
+    public var userNotes: String?
     public var source: TaskSource
     public var parsedUrgency: Double?
     public var parsedImportance: Double?
@@ -69,7 +75,8 @@ public struct Task: Identifiable, Codable, Equatable, Sendable {
         completedAt: Date? = nil,
         isArchived: Bool = false,
         tags: [String] = [],
-        clusterId: UUID? = nil,
+        clusterName: String? = nil,
+        userNotes: String? = nil,
         source: TaskSource = .manual,
         parsedUrgency: Double? = nil,
         parsedImportance: Double? = nil
@@ -83,7 +90,8 @@ public struct Task: Identifiable, Codable, Equatable, Sendable {
         self.completedAt = completedAt
         self.isArchived = isArchived
         self.tags = tags
-        self.clusterId = clusterId
+        self.clusterName = clusterName
+        self.userNotes = userNotes
         self.source = source
         self.parsedUrgency = parsedUrgency
         self.parsedImportance = parsedImportance
@@ -95,18 +103,19 @@ extension Task: FetchableRecord, PersistableRecord, MutablePersistableRecord {
     public static let databaseTableName = "tasks"
 
     public enum Columns {
-        public static let id             = Column(CodingKeys.id)
-        public static let title          = Column(CodingKeys.title)
-        public static let quadrant       = Column(CodingKeys.quadrant)
-        public static let dueDate        = Column(CodingKeys.dueDate)
-        public static let createdAt      = Column(CodingKeys.createdAt)
-        public static let updatedAt      = Column(CodingKeys.updatedAt)
-        public static let completedAt    = Column(CodingKeys.completedAt)
-        public static let isArchived     = Column(CodingKeys.isArchived)
-        public static let tagsJSON       = Column("tagsJSON")
-        public static let clusterId      = Column(CodingKeys.clusterId)
-        public static let source         = Column(CodingKeys.source)
-        public static let parsedUrgency  = Column(CodingKeys.parsedUrgency)
+        public static let id               = Column(CodingKeys.id)
+        public static let title            = Column(CodingKeys.title)
+        public static let quadrant         = Column(CodingKeys.quadrant)
+        public static let dueDate          = Column(CodingKeys.dueDate)
+        public static let createdAt        = Column(CodingKeys.createdAt)
+        public static let updatedAt        = Column(CodingKeys.updatedAt)
+        public static let completedAt      = Column(CodingKeys.completedAt)
+        public static let isArchived       = Column(CodingKeys.isArchived)
+        public static let tagsJSON         = Column("tagsJSON")
+        public static let clusterName      = Column(CodingKeys.clusterName)
+        public static let userNotes        = Column(CodingKeys.userNotes)
+        public static let source           = Column(CodingKeys.source)
+        public static let parsedUrgency    = Column(CodingKeys.parsedUrgency)
         public static let parsedImportance = Column(CodingKeys.parsedImportance)
     }
 
@@ -120,25 +129,27 @@ extension Task: FetchableRecord, PersistableRecord, MutablePersistableRecord {
         container["completedAt"]      = completedAt
         container["isArchived"]       = isArchived
         container["tagsJSON"]         = try String(data: JSONEncoder().encode(tags), encoding: .utf8)
-        container["clusterId"]        = clusterId?.uuidString
+        container["clusterName"]      = clusterName
+        container["userNotes"]        = userNotes
         container["source"]           = source.rawValue
         container["parsedUrgency"]    = parsedUrgency
         container["parsedImportance"] = parsedImportance
     }
 
     public init(row: Row) throws {
-        id             = UUID(uuidString: row["id"] as String) ?? UUID()
-        title          = row["title"]
-        quadrant       = Quadrant(rawValue: row["quadrant"] as Int) ?? .eliminate
-        dueDate        = row["dueDate"]
-        createdAt      = row["createdAt"]
-        updatedAt      = row["updatedAt"]
-        completedAt    = row["completedAt"]
-        isArchived     = row["isArchived"]
-        tags           = (try? JSONDecoder().decode([String].self, from: Data((row["tagsJSON"] as String? ?? "[]").utf8))) ?? []
-        clusterId      = (row["clusterId"] as String?).flatMap(UUID.init)
-        source         = TaskSource(rawValue: row["source"] as String? ?? "manual") ?? .manual
-        parsedUrgency  = row["parsedUrgency"]
+        id               = UUID(uuidString: row["id"] as String) ?? UUID()
+        title            = row["title"]
+        quadrant         = Quadrant(rawValue: row["quadrant"] as Int) ?? .eliminate
+        dueDate          = row["dueDate"]
+        createdAt        = row["createdAt"]
+        updatedAt        = row["updatedAt"]
+        completedAt      = row["completedAt"]
+        isArchived       = row["isArchived"]
+        tags             = (try? JSONDecoder().decode([String].self, from: Data((row["tagsJSON"] as String? ?? "[]").utf8))) ?? []
+        clusterName      = row["clusterName"]
+        userNotes        = row["userNotes"]
+        source           = TaskSource(rawValue: row["source"] as String? ?? "manual") ?? .manual
+        parsedUrgency    = row["parsedUrgency"]
         parsedImportance = row["parsedImportance"]
     }
 }

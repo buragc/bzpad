@@ -2,7 +2,6 @@ import Foundation
 import Observation
 
 /// Central state container for the app. Observable so SwiftUI views re-render automatically.
-/// Mirrors the structure of useTaskStore.ts from the React prototype.
 @MainActor
 @Observable
 public final class TaskStore {
@@ -16,6 +15,8 @@ public final class TaskStore {
         .eliminate: [],
     ]
     public private(set) var archivedTasks: [Task] = []
+    public private(set) var permissionDenied: Bool = false
+
     public var selectedIds: Set<UUID> = []
     public var focusedId: UUID? = nil
     public var editingId: UUID? = nil
@@ -24,38 +25,56 @@ public final class TaskStore {
     public var filterTags: [String] = []
     public var viewMode: ViewMode = .matrix
     public var darkMode: DarkMode = .system
-    public var isFocusMode: Bool = false         // T13 — Q1 + overdue only
+    public var isFocusMode: Bool = false         // Q1 + overdue only
 
     private var undoStack: [[Quadrant: [Task]]] = []    // max 50 snapshots
-    private var archivedUndoStack: [Task] = []
 
-    private let repo: TaskRepository
+    private let repo: any TaskRepositoryProtocol
 
-    public init(repository: TaskRepository = TaskRepository()) {
+    public init(repository: any TaskRepositoryProtocol = EventKitRepository()) {
         self.repo = repository
-        _Concurrency.Task { await self.loadAll() }
+        _Concurrency.Task { await self.setup() }
     }
 
-    // MARK: – Load
+    // MARK: – Setup
 
-    private func loadAll() async {
+    private func setup() async {
         do {
-            var byQuadrant: [Quadrant: [Task]] = [:]
-            for q in [Quadrant.doFirst, .schedule, .delegate, .eliminate] {
-                byQuadrant[q] = try repo.fetchActive(in: q)
+            let granted = try await repo.requestAccess()
+            if !granted {
+                permissionDenied = true
+                return
             }
-            tasksByQuadrant = byQuadrant
-            archivedTasks   = try repo.fetchArchived()
         } catch {
-            // Log in production; for now surface in debug
-            print("[TaskStore] loadAll failed: \(error)")
+            permissionDenied = true
+            print("[TaskStore] requestAccess failed: \(error)")
+            return
         }
+
+        await repo.reload()
+        loadFromCache()
+
+        repo.observeChanges { [weak self] in
+            guard let self else { return }
+            self.loadFromCache()
+        }
+    }
+
+    // MARK: – Load from cache
+
+    private func loadFromCache() {
+        var byQuadrant: [Quadrant: [Task]] = [:]
+        for q in Quadrant.allCases {
+            byQuadrant[q] = (try? repo.fetchActive(in: q)) ?? []
+        }
+        tasksByQuadrant = byQuadrant
+        archivedTasks   = (try? repo.fetchArchived()) ?? []
     }
 
     // MARK: – CRUD
 
     public func addTask(title: String, quadrant: Quadrant? = nil) {
-        let dueDate  = DateParser.parse(title)
+        let dueDate    = DateParser.parse(title)
         let cleanTitle = DateParser.strippingDatePhrases(
             from: TagExtractor.strippingHashtags(from: title)
         )
@@ -152,17 +171,32 @@ public final class TaskStore {
         for id in ids { completeTask(id: id) }
     }
 
+    // MARK: – Cluster management
+
+    /// All distinct cluster names across all active quadrants.
+    public var allClusters: [String] {
+        var seen = Set<String>()
+        for tasks in tasksByQuadrant.values {
+            for task in tasks {
+                if let name = task.clusterName { seen.insert(name) }
+            }
+        }
+        return seen.sorted()
+    }
+
+    /// Assign `clusterName` to a task (nil to uncluster).
+    public func setCluster(taskId: UUID, name: String?) {
+        guard var task = findTask(id: taskId) else { return }
+        task.clusterName = name
+        updateTask(task)
+    }
+
     // MARK: – Undo
 
     public func undo() {
         guard !undoStack.isEmpty else { return }
-        let previous = undoStack.removeLast()
-        tasksByQuadrant = previous
-        // Reload archived from DB to stay consistent
-        _Concurrency.Task { [weak self] in
-            guard let self else { return }
-            self.archivedTasks = (try? self.repo.fetchArchived()) ?? []
-        }
+        tasksByQuadrant = undoStack.removeLast()
+        archivedTasks   = (try? repo.fetchArchived()) ?? []
     }
 
     private func pushUndo() {
@@ -175,7 +209,6 @@ public final class TaskStore {
     public func activeTasks(in quadrant: Quadrant) -> [Task] {
         var tasks = tasksByQuadrant[quadrant] ?? []
         if isFocusMode && quadrant != .doFirst {
-            // Focus mode: non-Q1 quadrants are empty except overdue tasks
             tasks = tasks.filter {
                 UrgencyCalculator.level(dueDate: $0.dueDate) == .overdue
             }
@@ -205,9 +238,7 @@ public final class TaskStore {
 
     // MARK: – Selection
 
-    public func clearSelection() {
-        selectedIds = []
-    }
+    public func clearSelection() { selectedIds = [] }
 
     // MARK: – Helpers
 

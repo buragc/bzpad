@@ -3,6 +3,7 @@ import Foundation
 @testable import EisenhowerCore
 
 @Suite("TaskRepository")
+@MainActor
 struct TaskRepositoryTests {
 
     // Each test gets a fresh isolated database (unique temp file)

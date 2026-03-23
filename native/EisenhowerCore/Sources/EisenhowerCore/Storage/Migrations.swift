@@ -57,7 +57,12 @@ enum Migrations {
             )
         }
 
-        // Add future migrations here:
-        // migrator.registerMigration("v2_add_recurring") { db in ... }
+        // v2: Replace clusterId (foreign key) with clusterName (plain string), add userNotes
+        migrator.registerMigration("v2_cluster_name") { db in
+            try db.alter(table: "tasks") { t in
+                t.add(column: "clusterName", .text)
+                t.add(column: "userNotes",   .text)
+            }
+        }
     }
 }
