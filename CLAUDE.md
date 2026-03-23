@@ -42,14 +42,14 @@ xcodebuild build \
   -project native/bzpad.xcodeproj \
   -scheme bzpad-iOS \
   -destination 'generic/platform=iOS Simulator' \
-  CODE_SIGNING_ALLOWED=NO 2>&1 | grep -E "error:|BUILD FAILED|BUILD SUCCEEDED"
+  2>&1 | grep -E "error:|BUILD FAILED|BUILD SUCCEEDED"
 
 # macOS
 xcodebuild build \
   -project native/bzpad.xcodeproj \
   -scheme bzpad-macOS \
   -destination 'generic/platform=macOS' \
-  CODE_SIGNING_ALLOWED=NO 2>&1 | grep -E "error:|BUILD FAILED|BUILD SUCCEEDED"
+  2>&1 | grep -E "error:|BUILD FAILED|BUILD SUCCEEDED"
 ```
 
 Both must print `BUILD SUCCEEDED` with zero `error:` lines.
