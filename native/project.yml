@@ -73,13 +73,13 @@ targets:
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
         LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: public.app-category.productivity
         NSRemindersUsageDescription: "bzpad uses Reminders to store and sync your tasks via iCloud."
     entitlements:
       path: bzpad/Sources/macOS/bzpad.entitlements
       properties:
-        # Sandbox disabled for development — enable before Mac App Store submission
-        # and add com.apple.security.personal-information.calendars alongside it.
-        com.apple.security.app-sandbox: false
+        com.apple.security.app-sandbox: true
+        com.apple.security.personal-information.calendars: true
     settings:
       base:
         SWIFT_VERSION: "6.0"
