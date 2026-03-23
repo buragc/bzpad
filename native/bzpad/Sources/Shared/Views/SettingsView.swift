@@ -4,6 +4,9 @@ import EisenhowerCore
 struct SettingsView: View {
 
     @AppStorage("colorScheme") private var darkMode: DarkMode = .system
+    #if os(macOS)
+    @AppStorage("showMenuBarItem") private var showMenuBarItem: Bool = true
+    #endif
 
     var body: some View {
         Form {
@@ -22,6 +25,12 @@ struct SettingsView: View {
                 .pickerStyle(.radioGroup)
                 #endif
             }
+
+            #if os(macOS)
+            Section("Menu Bar") {
+                Toggle("Show menu bar icon", isOn: $showMenuBarItem)
+            }
+            #endif
         }
         .formStyle(.grouped)
         #if os(iOS)

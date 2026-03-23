@@ -31,6 +31,7 @@
 		DAC8D35B33F863CC3901D800 /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */; };
 		E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9121AC6C1B449217D38A39E1 /* TaskCardView.swift */; };
 		E8B012E7ABD4ADEB6156A409 /* MatrixView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E778CB0555E26883DD5ACB88 /* MatrixView.swift */; };
+		EDF8136E53AAE05E0270AE97 /* QuickAddPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AF2475B9019C5F0D39DA24 /* QuickAddPanel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformColors.swift; sourceTree = "<group>"; };
 		A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
 		A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bzpad-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2AF2475B9019C5F0D39DA24 /* QuickAddPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddPanel.swift; sourceTree = "<group>"; };
 		B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddView.swift; sourceTree = "<group>"; };
 		D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagExtractorTests.swift; sourceTree = "<group>"; };
 		D571F90582E46E765C1C1F89 /* QuadrantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuadrantView.swift; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 				F25EA3F25453ABC046855039 /* bzpad.entitlements */,
 				5BB8D3E425D47545BE73965E /* bzpadApp.swift */,
 				3E6255947EAA6E2143F2806F /* Info.plist */,
+				B2AF2475B9019C5F0D39DA24 /* QuickAddPanel.swift */,
 			);
 			path = macOS;
 			sourceTree = "<group>";
@@ -324,6 +327,7 @@
 				397DC92C81BB8576943F9F79 /* MatrixView.swift in Sources */,
 				18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */,
 				9C37B231A1CEEE24DE0980B5 /* QuadrantView.swift in Sources */,
+				EDF8136E53AAE05E0270AE97 /* QuickAddPanel.swift in Sources */,
 				481EE69A31F6D2F364414219 /* QuickAddView.swift in Sources */,
 				08EA7615C80CEE2C543DC7FF /* SettingsView.swift in Sources */,
 				E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */,

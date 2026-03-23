@@ -6,6 +6,7 @@ struct bzpadApp: App {
 
     @State private var store = TaskStore()
     @AppStorage("colorScheme") private var darkMode: DarkMode = .system
+    @AppStorage("showMenuBarItem") private var showMenuBarItem: Bool = true
 
     var body: some Scene {
         WindowGroup {
@@ -13,6 +14,10 @@ struct bzpadApp: App {
                 .environment(store)
                 .frame(minWidth: 900, minHeight: 600)
                 .preferredColorScheme(darkMode.colorScheme)
+                .onAppear {
+                    QuickAddPanelController.shared.configure(store: store)
+                    GlobalHotKeyManager.shared.register()
+                }
         }
         .commands {
             CommandGroup(before: .newItem) {
@@ -26,6 +31,40 @@ struct bzpadApp: App {
             SettingsView()
                 .frame(width: 360)
         }
+
+        // Menu bar item — isInserted binding toggles visibility without a SceneBuilder conditional
+        MenuBarExtra("bzpad", systemImage: "square.grid.2x2", isInserted: $showMenuBarItem) {
+            MenuBarMenuView(store: store)
+        }
+    }
+}
+
+// MARK: – Menu bar drop-down
+
+private struct MenuBarMenuView: View {
+
+    let store: TaskStore
+
+    var body: some View {
+        Button("Open bzpad") {
+            NSApp.activate(ignoringOtherApps: true)
+            for window in NSApp.windows where window.isKind(of: NSPanel.self) == false {
+                window.makeKeyAndOrderFront(nil)
+            }
+        }
+        .keyboardShortcut("o", modifiers: [.command])
+
+        Button("Quick Add Task") {
+            QuickAddPanelController.shared.show()
+        }
+        .keyboardShortcut("/", modifiers: [.command, .shift])
+
+        Divider()
+
+        Button("Quit bzpad") {
+            NSApp.terminate(nil)
+        }
+        .keyboardShortcut("q", modifiers: .command)
     }
 }
 
