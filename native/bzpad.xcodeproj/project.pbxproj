@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		072B63508D49B23FF3EFE128 /* QuadrantDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B879268AAAFF09EC544C463 /* QuadrantDetectorTests.swift */; };
 		089301FE56B112BC50F62FC1 /* EisenhowerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 67BA23F1174BA5828E140467 /* EisenhowerCore */; };
+		08EA7615C80CEE2C543DC7FF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
 		0BD5765347956A3524002C14 /* EisenhowerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 807CD6149D3CD4ED19D35C52 /* EisenhowerCore */; };
 		18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */; };
 		1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
@@ -25,6 +26,7 @@
 		993F23CD72810BCD2981BA6C /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE3FA541E2ADB193805E085 /* ArchiveView.swift */; };
 		9A4CDA80FBE4D18DB96EC85B /* TagExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */; };
 		9C37B231A1CEEE24DE0980B5 /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
+		A09CBFB30618F519FD19B766 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
 		B29269EEF7A518BAD62B10AB /* QuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */; };
 		DAC8D35B33F863CC3901D800 /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */; };
 		E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9121AC6C1B449217D38A39E1 /* TaskCardView.swift */; };
@@ -34,20 +36,21 @@
 /* Begin PBXFileReference section */
 		34DABD631D71D57BA1BFD5D5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3E6255947EAA6E2143F2806F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		3F3215005B75B83E9AD05531 /* bzpad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bzpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "bzpad-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateParserTests.swift; sourceTree = "<group>"; };
 		5BB8D3E425D47545BE73965E /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
 		75E32B76A8CDE435A1CDC2E7 /* UrgencyCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrgencyCalculatorTests.swift; sourceTree = "<group>"; };
 		8B879268AAAFF09EC544C463 /* QuadrantDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuadrantDetectorTests.swift; sourceTree = "<group>"; };
+		8C04A231165262D3B874F682 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9121AC6C1B449217D38A39E1 /* TaskCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCardView.swift; sourceTree = "<group>"; };
 		97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformColors.swift; sourceTree = "<group>"; };
 		A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
-		A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "bzpad-macOS.app"; path = bzpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bzpad-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddView.swift; sourceTree = "<group>"; };
 		D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagExtractorTests.swift; sourceTree = "<group>"; };
 		D571F90582E46E765C1C1F89 /* QuadrantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuadrantView.swift; sourceTree = "<group>"; };
 		D78D7BE57738A52BD3EDE528 /* EisenhowerCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EisenhowerCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DB6FFCF6945ABC2BA20A33A6 /* EisenhowerCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = EisenhowerCore; sourceTree = SOURCE_ROOT; };
+		DB6FFCF6945ABC2BA20A33A6 /* EisenhowerCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EisenhowerCore; path = EisenhowerCore; sourceTree = SOURCE_ROOT; };
 		DEE3FA541E2ADB193805E085 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		E778CB0555E26883DD5ACB88 /* MatrixView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixView.swift; sourceTree = "<group>"; };
 		E9E4AA4A9CBAAD2CF86475BF /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
@@ -150,6 +153,7 @@
 				E778CB0555E26883DD5ACB88 /* MatrixView.swift */,
 				D571F90582E46E765C1C1F89 /* QuadrantView.swift */,
 				B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */,
+				8C04A231165262D3B874F682 /* SettingsView.swift */,
 				9121AC6C1B449217D38A39E1 /* TaskCardView.swift */,
 			);
 			path = Views;
@@ -179,7 +183,7 @@
 		F2BB1B6CF0299E7234F5F7B4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3F3215005B75B83E9AD05531 /* bzpad.app */,
+				3F3215005B75B83E9AD05531 /* bzpad-iOS.app */,
 				A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */,
 				D78D7BE57738A52BD3EDE528 /* EisenhowerCoreTests.xctest */,
 			);
@@ -242,7 +246,7 @@
 				9282F216408F10CE9FDFFB73 /* EisenhowerCore */,
 			);
 			productName = "bzpad-iOS";
-			productReference = 3F3215005B75B83E9AD05531 /* bzpad.app */;
+			productReference = 3F3215005B75B83E9AD05531 /* bzpad-iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D396F3EB43295DCD51AEAE1C /* bzpad-macOS */ = {
@@ -272,6 +276,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 194411ED9308030F59D02991 /* Build configuration list for PBXProject "bzpad" */;
 			developmentRegion = en;
@@ -319,6 +325,7 @@
 				18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */,
 				9C37B231A1CEEE24DE0980B5 /* QuadrantView.swift in Sources */,
 				481EE69A31F6D2F364414219 /* QuickAddView.swift in Sources */,
+				08EA7615C80CEE2C543DC7FF /* SettingsView.swift in Sources */,
 				E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */,
 				4EC53647BCE796FE0B7E14F6 /* bzpadApp.swift in Sources */,
 			);
@@ -333,6 +340,7 @@
 				878B3198A3CCAB6B9020F114 /* PlatformColors.swift in Sources */,
 				1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */,
 				B29269EEF7A518BAD62B10AB /* QuickAddView.swift in Sources */,
+				A09CBFB30618F519FD19B766 /* SettingsView.swift in Sources */,
 				8C748D8FCA8644DB6FFE57FE /* TaskCardView.swift in Sources */,
 				71546E840FFF03ABACAFE1AE /* bzpadApp.swift in Sources */,
 			);
@@ -426,7 +434,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = LKV23MKRSH;
 				INFOPLIST_FILE = bzpad/Sources/iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -555,7 +562,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = LKV23MKRSH;
 				INFOPLIST_FILE = bzpad/Sources/iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

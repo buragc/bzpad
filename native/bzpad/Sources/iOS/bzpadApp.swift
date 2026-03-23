@@ -5,11 +5,13 @@ import EisenhowerCore
 struct bzpadApp: App {
 
     @State private var store = TaskStore()
+    @AppStorage("colorScheme") private var darkMode: DarkMode = .system
 
     var body: some Scene {
         WindowGroup {
             iOSRootView()
                 .environment(store)
+                .preferredColorScheme(darkMode.colorScheme)
         }
     }
 }
@@ -20,7 +22,7 @@ private struct iOSRootView: View {
     @Environment(TaskStore.self) private var store
 
     // Named AppTab to avoid shadowing SwiftUI's Tab view (iOS 18+)
-    enum AppTab { case matrix, archive }
+    enum AppTab { case matrix, archive, settings }
     @State private var selectedTab: AppTab = .matrix
 
     var body: some View {
@@ -38,6 +40,12 @@ private struct iOSRootView: View {
             }
             .tabItem { Label("Archive", systemImage: "archivebox") }
             .tag(AppTab.archive)
+
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem { Label("Settings", systemImage: "gear") }
+            .tag(AppTab.settings)
         }
     }
 

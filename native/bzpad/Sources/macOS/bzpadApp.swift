@@ -5,18 +5,26 @@ import EisenhowerCore
 struct bzpadApp: App {
 
     @State private var store = TaskStore()
+    @AppStorage("colorScheme") private var darkMode: DarkMode = .system
 
     var body: some Scene {
         WindowGroup {
             macOSRootView()
                 .environment(store)
                 .frame(minWidth: 900, minHeight: 600)
+                .preferredColorScheme(darkMode.colorScheme)
         }
         .commands {
             CommandGroup(before: .newItem) {
                 Button("Undo") { store.undo() }
                     .keyboardShortcut("z", modifiers: .command)
             }
+        }
+
+        // Native macOS Preferences window — opens with Cmd+,
+        Settings {
+            SettingsView()
+                .frame(width: 360)
         }
     }
 }
