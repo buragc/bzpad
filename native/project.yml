@@ -64,12 +64,14 @@ targets:
         createIntermediateGroups: true
     resources:
       - path: bzpad/Resources/Assets.xcassets
+      - path: bzpad/Resources/bzpad.icns
     dependencies:
       - package: EisenhowerCore
     info:
       path: bzpad/Sources/macOS/Info.plist
       properties:
         CFBundleDisplayName: bzpad
+        CFBundleIconFile: bzpad
         NSPrincipalClass: NSApplication
         NSHighResolutionCapable: true
         LSMinimumSystemVersion: "14.0"
