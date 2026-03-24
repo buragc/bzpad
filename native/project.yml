@@ -75,6 +75,7 @@ targets:
       path: bzpad/Sources/macOS/bzpad.entitlements
       properties:
         com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
         com.apple.security.personal-information.calendars: true
     settings:
       base:

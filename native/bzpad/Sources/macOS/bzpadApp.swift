@@ -94,7 +94,11 @@ private struct MenuBarMenuView: View {
 private struct macOSRootView: View {
 
     @Environment(TaskStore.self) private var store
+    @Environment(\.openSettings) private var openSettings
     @State private var selection: SidebarItem = .matrix
+    @AppStorage("claudeAPIKey") private var claudeAPIKey: String = ""
+    @State private var isAutoCategorizing = false
+    @State private var aiErrorMessage: String? = nil
 
     enum SidebarItem: Hashable {
         case matrix
@@ -120,6 +124,68 @@ private struct macOSRootView: View {
                 } label: {
                     Label("Undo", systemImage: "arrow.uturn.backward")
                 }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    handleAIButton()
+                } label: {
+                    if isAutoCategorizing {
+                        ProgressView().controlSize(.small).frame(width: 16, height: 16)
+                    } else {
+                        Label("Auto-Categorize with AI", systemImage: "sparkles")
+                    }
+                }
+                .disabled(isAutoCategorizing)
+                .help("Ask Claude to categorize all tasks into the right quadrants")
+            }
+        }
+        .alert("AI Categorization Failed", isPresented: Binding(
+            get: { aiErrorMessage != nil },
+            set: { if !$0 { aiErrorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { aiErrorMessage = nil }
+            if aiErrorMessage?.contains("key") == true {
+                Button("Open Settings") {
+                    aiErrorMessage = nil
+                    openSettingsToAPIKey()
+                }
+            }
+        } message: {
+            Text(aiErrorMessage ?? "")
+        }
+    }
+
+    private func handleAIButton() {
+        guard !claudeAPIKey.trimmingCharacters(in: .whitespaces).isEmpty else {
+            openSettingsToAPIKey()
+            return
+        }
+        runAutoCategorize()
+    }
+
+    private func openSettingsToAPIKey() {
+        openSettings()
+        // Give the Settings window time to open before posting the focus notification
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            NotificationCenter.default.post(name: .focusAPIKeyField, object: nil)
+        }
+    }
+
+    private func runAutoCategorize() {
+        let key = claudeAPIKey
+        let tasks = store.tasksByQuadrant.values.flatMap { $0 }
+        guard !tasks.isEmpty else { return }
+
+        isAutoCategorizing = true
+        _Concurrency.Task {
+            defer { isAutoCategorizing = false }
+            do {
+                let suggestions = try await ClaudeAutoCategorizer.categorize(tasks: tasks, apiKey: key)
+                for (id, quadrant) in suggestions {
+                    store.moveTask(id: id, to: quadrant)
+                }
+            } catch {
+                aiErrorMessage = error.localizedDescription
             }
         }
     }

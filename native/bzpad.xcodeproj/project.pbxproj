@@ -13,6 +13,7 @@
 		08EA7615C80CEE2C543DC7FF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
 		0BD5765347956A3524002C14 /* EisenhowerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 807CD6149D3CD4ED19D35C52 /* EisenhowerCore */; };
 		18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */; };
+		1A9305B8DC328916E261C3BC /* ClaudeAutoCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */; };
 		1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
 		1EE094BD8D265C7E7F52DA14 /* UrgencyCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E32B76A8CDE435A1CDC2E7 /* UrgencyCalculatorTests.swift */; };
 		3323E00369C5C36D9C09CD6F /* DateParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */; };
@@ -31,6 +32,7 @@
 		A09CBFB30618F519FD19B766 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
 		A9E64E5F85AAE628EC05FC61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */; };
 		B29269EEF7A518BAD62B10AB /* QuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */; };
+		C035DAADE425953E79E32187 /* ClaudeAutoCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */; };
 		DAC8D35B33F863CC3901D800 /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */; };
 		E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9121AC6C1B449217D38A39E1 /* TaskCardView.swift */; };
 		E8B012E7ABD4ADEB6156A409 /* MatrixView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E778CB0555E26883DD5ACB88 /* MatrixView.swift */; };
@@ -38,6 +40,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAutoCategorizer.swift; sourceTree = "<group>"; };
 		34DABD631D71D57BA1BFD5D5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3E6255947EAA6E2143F2806F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "bzpad-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +101,7 @@
 				F4DE56ABB972D6891A2C8FCF /* Components */,
 				E9AB89078323C762DF2D603E /* Views */,
 				58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */,
+				2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -352,6 +356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9831A9D255A59C87FFC7F89F /* ArchiveView.swift in Sources */,
+				C035DAADE425953E79E32187 /* ClaudeAutoCategorizer.swift in Sources */,
 				041E83BFBF37B57851321F5E /* HotkeySettings.swift in Sources */,
 				397DC92C81BB8576943F9F79 /* MatrixView.swift in Sources */,
 				18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */,
@@ -369,6 +374,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				993F23CD72810BCD2981BA6C /* ArchiveView.swift in Sources */,
+				1A9305B8DC328916E261C3BC /* ClaudeAutoCategorizer.swift in Sources */,
 				E8B012E7ABD4ADEB6156A409 /* MatrixView.swift in Sources */,
 				878B3198A3CCAB6B9020F114 /* PlatformColors.swift in Sources */,
 				1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */,

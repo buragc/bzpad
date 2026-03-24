@@ -143,6 +143,7 @@ final class QuickAddPanelController {
 
 extension Notification.Name {
     static let quickAddPanelWillShow = Notification.Name("bzpad.quickAddPanelWillShow")
+    static let focusAPIKeyField      = Notification.Name("bzpad.focusAPIKeyField")
 }
 
 // MARK: – Floating quick-add SwiftUI view

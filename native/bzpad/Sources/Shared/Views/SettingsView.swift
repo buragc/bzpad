@@ -5,8 +5,12 @@ struct SettingsView: View {
 
     @AppStorage("colorScheme") private var darkMode: DarkMode = .system
     #if os(macOS)
-    @AppStorage("showMenuBarItem") private var showMenuBarItem: Bool = true
-    @AppStorage("reminderListPrefix") private var reminderListPrefix: String = "bzpad"
+    @AppStorage("showMenuBarItem")     private var showMenuBarItem: Bool = true
+    @AppStorage("reminderListPrefix")  private var reminderListPrefix: String = "bzpad"
+    @AppStorage("claudeAPIKey")        private var claudeAPIKey: String = ""
+    @FocusState private var focusedField: SettingsField?
+
+    private enum SettingsField { case apiKey }
     #endif
 
     var body: some View {
@@ -52,6 +56,20 @@ struct SettingsView: View {
                 Text("Click the badge and press a new key combination to change the shortcut.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            Section {
+                SecureField("sk-ant-…", text: $claudeAPIKey)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($focusedField, equals: .apiKey)
+                Text("Used for the ✦ AI auto-categorize button. Get a key at console.anthropic.com.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text("Claude API")
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .focusAPIKeyField)) { _ in
+                focusedField = .apiKey
             }
             #endif
         }
