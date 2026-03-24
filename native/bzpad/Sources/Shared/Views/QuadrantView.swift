@@ -31,8 +31,8 @@ struct QuadrantView: View {
                 return true
             }
             if payload.hasPrefix("inbox:") {
-                let title = String(payload.dropFirst("inbox:".count))
-                store.addTask(title: title, quadrant: quadrant)
+                let inboxID = String(payload.dropFirst("inbox:".count))
+                store.categorizeInboxItem(id: inboxID, quadrant: quadrant)
                 return true
             }
             return false

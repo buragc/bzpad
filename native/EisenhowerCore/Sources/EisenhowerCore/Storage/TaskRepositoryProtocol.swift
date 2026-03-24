@@ -39,6 +39,12 @@ public protocol TaskRepositoryProtocol {
 
     /// Fetch reminders from non-bzpad Reminder lists (for the sidebar inbox).
     func fetchOtherReminders() async -> [(id: String, title: String)]
+
+    /// Move an external (non-bzpad) reminder into a bzpad quadrant list.
+    /// Deletes the original reminder and creates a replacement with bzpad metadata.
+    /// - Returns: the newly created `Task`.
+    @discardableResult
+    func adoptExternalReminder(ekID: String, title: String, quadrant: Quadrant) throws -> Task
 }
 
 // MARK: – Default no-ops (GRDB doesn't need these)
@@ -48,4 +54,11 @@ public extension TaskRepositoryProtocol {
     func reload() async {}
     func observeChanges(handler: @MainActor @Sendable @escaping () -> Void) {}
     func fetchOtherReminders() async -> [(id: String, title: String)] { [] }
+
+    /// Default fallback (used by GRDB test repo): creates a plain new task.
+    @discardableResult
+    func adoptExternalReminder(ekID: String, title: String, quadrant: Quadrant) throws -> Task {
+        let task = Task(title: title, quadrant: quadrant, source: .manual)
+        return try insert(task)
+    }
 }

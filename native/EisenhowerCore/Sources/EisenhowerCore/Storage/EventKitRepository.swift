@@ -189,7 +189,54 @@ public final class EventKitRepository: TaskRepositoryProtocol {
         activeCache[quadrant, default: []].append(task)
     }
 
-    // MARK: – TaskRepositoryProtocol: Inbox
+    // MARK: – TaskRepositoryProtocol: Inbox adoption
+
+    /// Moves an existing non-bzpad reminder into the target bzpad quadrant list.
+    /// Deletes the original EK reminder and creates a replacement with bzpad metadata.
+    @discardableResult
+    public func adoptExternalReminder(ekID: String, title: String, quadrant: Quadrant) throws -> Task {
+        // Look up the original reminder — may or may not be fetchable at this point
+        let original = ekStore.calendarItem(withIdentifier: ekID) as? EKReminder
+
+        // Preserve due date from the original if available
+        var dueDate: Date?
+        if let comps = original?.dueDateComponents {
+            dueDate = Calendar.current.date(from: comps)
+        }
+
+        // Apply the same smart parsing addTask uses
+        let tags       = TagExtractor.extract(from: title)
+        let cleanTitle = DateParser.strippingDatePhrases(
+            from: TagExtractor.strippingHashtags(from: title)
+        )
+        if dueDate == nil { dueDate = DateParser.parse(title) }
+
+        let task = Task(
+            id:        UUID(),
+            title:     cleanTitle.isEmpty ? title : cleanTitle,
+            quadrant:  quadrant,
+            dueDate:   dueDate,
+            createdAt: original?.creationDate ?? Date(),
+            updatedAt: Date(),
+            tags:      tags,
+            source:    .manual
+        )
+
+        // Delete from original list (same delete-then-recreate pattern as move())
+        if let original {
+            try ekStore.remove(original, commit: true)
+        }
+
+        // Create in the target bzpad list
+        let newReminder = EKReminder(eventStore: ekStore)
+        newReminder.calendar = try calendarForWriting(quadrant: quadrant)
+        apply(task: task, to: newReminder)
+        try ekStore.save(newReminder, commit: true)
+
+        ekIDMap[task.id] = newReminder.calendarItemIdentifier
+        activeCache[quadrant, default: []].append(task)
+        return task
+    }
 
     public func fetchOtherReminders() async -> [(id: String, title: String)] {
         let managed = allManagedCalendarNames

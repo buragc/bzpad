@@ -175,6 +175,19 @@ public final class TaskStore {
         }
     }
 
+    /// Moves an inbox item (non-bzpad reminder) into `quadrant`, deleting the original.
+    public func categorizeInboxItem(id: String, quadrant: Quadrant) {
+        guard let item = inboxItems.first(where: { $0.id == id }) else { return }
+        pushUndo()
+        do {
+            let task = try repo.adoptExternalReminder(ekID: id, title: item.title, quadrant: quadrant)
+            tasksByQuadrant[task.quadrant, default: []].append(task)
+            inboxItems.removeAll { $0.id == id }
+        } catch {
+            print("[TaskStore] categorizeInboxItem failed: \(error)")
+        }
+    }
+
     public func archiveTasks(ids: Set<UUID>) {
         pushUndo()
         for id in ids { completeTask(id: id) }
