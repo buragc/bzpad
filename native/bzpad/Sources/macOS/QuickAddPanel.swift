@@ -36,33 +36,53 @@ final class GlobalHotKeyManager: @unchecked Sendable {
     private var handlerRef: EventHandlerRef?
     private init() {}
 
-    /// Registers Cmd+Shift+/ globally. Safe to call multiple times (no-op after first).
+    /// Registers the global hotkey from UserDefaults (defaults to Cmd+Shift+/).
+    /// Safe to call multiple times — no-op after first registration.
     func register() {
         guard hotKeyRef == nil else { return }
 
-        var hotKeyID = EventHotKeyID(
-            signature: fourCC("bzpd"),
-            id: 1
-        )
+        // Read stored key + modifiers; fall back to Cmd+Shift+/
+        let storedChar = UserDefaults.standard.string(forKey: "quickAddKeyChar") ?? "/"
+        let storedMods = UserDefaults.standard.integer(forKey: "quickAddModifiers")
+        let nsMods = storedMods != 0
+            ? NSEvent.ModifierFlags(rawValue: UInt(storedMods))
+            : NSEvent.ModifierFlags([.command, .shift])
+        let char = Character(storedChar.lowercased())
+        guard let keyCode = Self.charToKeyCode[char] else { return }
+
+        var hotKeyID = EventHotKeyID(signature: fourCC("bzpd"), id: 1)
         RegisterEventHotKey(
-            UInt32(kVK_ANSI_Slash),
-            UInt32(cmdKey | shiftKey),
+            keyCode,
+            Self.carbonMods(from: nsMods),
             hotKeyID,
             GetApplicationEventTarget(),
             0,
             &hotKeyRef
         )
 
-        var eventSpec = EventTypeSpec(
-            eventClass: OSType(kEventClassKeyboard),
-            eventKind: UInt32(kEventHotKeyPressed)
-        )
-        InstallEventHandler(
-            GetApplicationEventTarget(),
-            carbonHotKeyCallback,
-            1, &eventSpec,
-            nil, &handlerRef
-        )
+        // Install the event handler only once — it persists for the app lifetime
+        if handlerRef == nil {
+            var eventSpec = EventTypeSpec(
+                eventClass: OSType(kEventClassKeyboard),
+                eventKind: UInt32(kEventHotKeyPressed)
+            )
+            InstallEventHandler(
+                GetApplicationEventTarget(),
+                carbonHotKeyCallback,
+                1, &eventSpec,
+                nil, &handlerRef
+            )
+        }
+    }
+
+    /// Unregisters the current hotkey and re-registers with current UserDefaults values.
+    /// Call this after the user changes their shortcut preference.
+    func reregister() {
+        if let ref = hotKeyRef {
+            UnregisterEventHotKey(ref)
+            hotKeyRef = nil
+        }
+        register()
     }
 
     private func fourCC(_ s: String) -> OSType {

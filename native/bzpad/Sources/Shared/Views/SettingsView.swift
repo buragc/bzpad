@@ -41,6 +41,18 @@ struct SettingsView: View {
             } header: {
                 Text("Reminder List Prefix")
             }
+
+            Section {
+                LabeledContent("Quick Add Shortcut") {
+                    HotkeyRecorderField()
+                }
+            } header: {
+                Text("Global Shortcut")
+            } footer: {
+                Text("Click the badge and press a new key combination to change the shortcut.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             #endif
         }
         .formStyle(.grouped)

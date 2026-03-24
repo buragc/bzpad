@@ -54,6 +54,15 @@ private struct MenuBarMenuView: View {
 
     let store: TaskStore
 
+    @AppStorage("quickAddKeyChar")   private var keyChar: String = "/"
+    @AppStorage("quickAddModifiers") private var modifiersRaw: Int = 0
+
+    private var effectiveKeyChar: String { keyChar.isEmpty ? "/" : keyChar }
+    private var effectiveModRaw: Int {
+        modifiersRaw != 0 ? modifiersRaw
+            : Int(NSEvent.ModifierFlags([.command, .shift]).rawValue)
+    }
+
     var body: some View {
         Button("Open bzpad") {
             NSApp.activate(ignoringOtherApps: true)
@@ -67,7 +76,10 @@ private struct MenuBarMenuView: View {
             QuickAddPanelController.shared.configure(store: store)
             QuickAddPanelController.shared.show()
         }
-        .keyboardShortcut("/", modifiers: [.command, .shift])
+        .keyboardShortcut(
+            KeyEquivalent(Character(effectiveKeyChar)),
+            modifiers: swiftUIModifiers(raw: effectiveModRaw)
+        )
 
         Divider()
 
