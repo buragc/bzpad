@@ -109,7 +109,12 @@ final class QuickAddPanelController {
         // Activate first so the panel can actually become key
         NSApp.activate(ignoringOtherApps: true)
         panel?.makeKeyAndOrderFront(nil)
-        NotificationCenter.default.post(name: .quickAddPanelWillShow, object: nil)
+        // Defer by one run-loop cycle so the panel is the key window before
+        // SwiftUI processes the focus request. Posting synchronously here causes
+        // @FocusState to no-op because the window isn't key yet.
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .quickAddPanelWillShow, object: nil)
+        }
     }
 
     func hide() {
