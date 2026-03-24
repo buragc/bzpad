@@ -90,6 +90,17 @@ final class GlobalHotKeyManager: @unchecked Sendable {
     }
 }
 
+// MARK: – Window delegate (fires when the panel actually becomes key)
+
+/// Separate NSObject subclass so QuickAddPanelController doesn't need to
+/// inherit from NSObject. windowDidBecomeKey fires at the exact moment the
+/// panel is the key window — the only safe point to request first responder.
+@MainActor
+private final class QuickAddWindowDelegate: NSObject, NSWindowDelegate {
+    var onBecomeKey: (() -> Void)?
+    func windowDidBecomeKey(_ notification: Notification) { onBecomeKey?() }
+}
+
 // MARK: – Panel controller
 
 @MainActor
@@ -98,6 +109,9 @@ final class QuickAddPanelController {
     static let shared = QuickAddPanelController()
     private var panel: QuickAddPanel?
     private var store: TaskStore?
+    private var windowDelegate: QuickAddWindowDelegate?
+    /// Set to true by show() so the next windowDidBecomeKey fires focus logic.
+    private var pendingFocus = false
     private init() {}
 
     func configure(store: TaskStore) { self.store = store }
@@ -106,15 +120,9 @@ final class QuickAddPanelController {
         guard let store else { return }
         if panel == nil { makePanel(store: store) }
         panel?.center()
-        // Activate first so the panel can actually become key
+        pendingFocus = true
         NSApp.activate(ignoringOtherApps: true)
         panel?.makeKeyAndOrderFront(nil)
-        // Defer by one run-loop cycle so the panel is the key window before
-        // SwiftUI processes the focus request. Posting synchronously here causes
-        // @FocusState to no-op because the window isn't key yet.
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .quickAddPanelWillShow, object: nil)
-        }
     }
 
     func hide() {
@@ -123,6 +131,31 @@ final class QuickAddPanelController {
 
     func toggle() {
         if panel?.isVisible == true { hide() } else { show() }
+    }
+
+    private func panelBecameKey() {
+        guard pendingFocus else { return }
+        pendingFocus = false
+        // Tell the SwiftUI view to clear its text binding
+        NotificationCenter.default.post(name: .quickAddPanelWillShow, object: nil)
+        // Directly move first responder via AppKit — more reliable than @FocusState
+        // because it runs at exactly the right moment (window is already key here).
+        DispatchQueue.main.async { [weak self] in
+            guard let panel = self?.panel,
+                  let tf = Self.firstEditableTextField(in: panel.contentView) else { return }
+            panel.makeFirstResponder(tf)
+        }
+    }
+
+    /// Depth-first search for the first editable NSTextField in the view tree.
+    /// SwiftUI embeds its NSTextField somewhere inside NSHostingView's subviews.
+    private static func firstEditableTextField(in view: NSView?) -> NSTextField? {
+        guard let view else { return nil }
+        if let tf = view as? NSTextField, tf.isEditable { return tf }
+        for sub in view.subviews {
+            if let found = firstEditableTextField(in: sub) { return found }
+        }
+        return nil
     }
 
     private func makePanel(store: TaskStore) {
@@ -142,6 +175,12 @@ final class QuickAddPanelController {
         p.contentView = NSHostingView(rootView: FloatingQuickAddView(store: store) { [weak self] in
             self?.hide()
         })
+
+        let del = QuickAddWindowDelegate()
+        del.onBecomeKey = { [weak self] in self?.panelBecameKey() }
+        windowDelegate = del
+        p.delegate = del
+
         panel = p
     }
 }
@@ -159,7 +198,6 @@ struct FloatingQuickAddView: View {
     let onDismiss: () -> Void
 
     @State private var text = ""
-    @FocusState private var focused: Bool
 
     var body: some View {
         HStack(spacing: 14) {
@@ -170,7 +208,6 @@ struct FloatingQuickAddView: View {
             TextField("Add a task…", text: $text)
                 .font(.system(size: 28, weight: .light))
                 .textFieldStyle(.plain)
-                .focused($focused)
                 .onSubmit(submit)
                 .onKeyPress(.escape) { dismiss(); return .handled }
         }
@@ -181,12 +218,11 @@ struct FloatingQuickAddView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder(.primary.opacity(0.08), lineWidth: 1)
         }
-        // Reset + focus whenever the panel is re-shown
+        // Reset text whenever the panel is re-shown.
+        // Focus is handled by QuickAddPanelController.panelBecameKey() via makeFirstResponder.
         .onReceive(NotificationCenter.default.publisher(for: .quickAddPanelWillShow)) { _ in
             text = ""
-            focused = true
         }
-        .onAppear { focused = true }
     }
 
     private func submit() {
