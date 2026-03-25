@@ -206,7 +206,7 @@ private struct macOSRootView: View {
 
             inboxPanel
         }
-        .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
+        .navigationSplitViewColumnWidth(min: 180, ideal: 220)
     }
 
     private var inboxPanel: some View {
@@ -237,10 +237,10 @@ private struct macOSRootView: View {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(store.inboxItems) { item in
                             Text(item.title)
-                                .font(.caption)
+                                .font(.body)
                                 .lineLimit(2)
                                 .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
+                                .padding(.vertical, 7)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .draggable("inbox:\(item.id)")
                         }
