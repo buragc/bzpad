@@ -113,10 +113,10 @@ extension Quadrant {
 
     var label: String {
         switch self {
-        case .doFirst:   return "Do First"
-        case .schedule:  return "Schedule"
-        case .delegate:  return "Delegate"
-        case .eliminate: return "Eliminate"
+        case .doFirst:   return "Do Now"
+        case .schedule:  return "Plan"
+        case .delegate:  return "Hand Off"
+        case .eliminate: return "Drop"
         }
     }
 
