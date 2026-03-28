@@ -4,11 +4,15 @@ import EisenhowerCore
 struct TaskCardView: View {
 
     let task: Task
+    var isKeyboardFocused: Bool = false
 
     @Environment(TaskStore.self) private var store
     @AppStorage("textSizeStep") private var textSizeStep: Int = 0
     @State private var isEditing = false
     @State private var editText = ""
+    @State private var isHovering = false
+    @State private var saveError = false
+    @FocusState private var focused: Bool
 
     /// Each step adjusts the base size by ±15 %.
     private var titleFont: Font {
@@ -19,6 +23,14 @@ struct TaskCardView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
+            // Keyboard focus accent bar
+            if isKeyboardFocused {
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(Color.accentColor)
+                    .frame(width: 3)
+                    .padding(.vertical, 4)
+            }
+
             // Completion button
             Button {
                 store.completeTask(id: task.id)
@@ -32,10 +44,34 @@ struct TaskCardView: View {
 
             // Task content
             VStack(alignment: .leading, spacing: 4) {
-                Text(task.title)
-                    .font(titleFont)
-                    .foregroundStyle(.primary)
-                    .lineLimit(3)
+                if isEditing {
+                    TextField("", text: $editText, axis: .vertical)
+                        .font(titleFont)
+                        .lineLimit(1...3)
+                        .textFieldStyle(.plain)
+                        .focused($focused)
+                        .onSubmit { save() }
+                        .onChange(of: isEditing) { _, on in if on { focused = true } }
+                } else {
+                    HStack(alignment: .center, spacing: 4) {
+                        Text(task.title)
+                            .font(titleFont)
+                            .foregroundStyle(.primary)
+                            .lineLimit(3)
+                        if isHovering {
+                            Image(systemName: "pencil")
+                                .imageScale(.small)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .animation(.easeInOut(duration: 0.15), value: isHovering)
+                }
+
+                if saveError {
+                    Text("Could not save")
+                        .font(.caption2)
+                        .foregroundStyle(.red)
+                }
 
                 if !task.tags.isEmpty || task.dueDate != nil {
                     HStack(spacing: 6) {
@@ -53,7 +89,28 @@ struct TaskCardView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+        .background(isKeyboardFocused ? Color.accentColor.opacity(0.08) : Color.clear)
+        .animation(.easeInOut(duration: 0.1), value: isKeyboardFocused)
         .contentShape(Rectangle())
+        .onHover { isHovering = $0 }
+        .onTapGesture { store.focusedId = task.id }
+        .highPriorityGesture(TapGesture(count: 2).onEnded { beginEditing() })
+        .onChange(of: store.editingId) { _, newId in
+            if newId == task.id {
+                beginEditing()
+            } else if isEditing {
+                endEditing()
+            }
+        }
+        .background {
+            // Hidden Escape button — captures Escape key while editing
+            if isEditing {
+                Button("", role: .cancel) { endEditing() }
+                    .keyboardShortcut(.escape, modifiers: [])
+                    .opacity(0)
+                    .frame(width: 0, height: 0)
+            }
+        }
         .draggable(task.id.uuidString) {
             // Drag preview: compact title label
             Text(task.title)
@@ -73,6 +130,40 @@ struct TaskCardView: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+    }
+
+    // MARK: – Edit helpers
+
+    private func beginEditing() {
+        editText = task.title
+        isEditing = true
+        store.editingId = task.id
+    }
+
+    private func endEditing() {
+        isEditing = false
+        focused = false
+        if store.editingId == task.id {
+            store.editingId = nil
+        }
+    }
+
+    private func save() {
+        let trimmed = editText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { endEditing(); return }
+        var updated = task
+        updated.title = trimmed
+        do {
+            try store.updateTask(updated)
+        } catch {
+            saveError = true
+            editText = task.title
+            _Concurrency.Task {
+                try? await _Concurrency.Task.sleep(nanoseconds: 3_000_000_000)
+                saveError = false
+            }
+        }
+        endEditing()
     }
 
     // MARK: – Due date badge

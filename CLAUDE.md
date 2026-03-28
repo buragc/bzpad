@@ -1,5 +1,9 @@
 # bzpad — Claude Code Guidelines
 
+## Code Signing — DO NOT TOUCH
+
+**Never modify code signing settings.** Both `bzpad-iOS` and `bzpad-macOS` use `CODE_SIGN_STYLE: Automatic` in `native/project.yml`. Do not change it, do not add `CODE_SIGN_STYLE: Manual`, do not add `DEVELOPMENT_TEAM`, do not touch any signing-related build setting. Xcode manages signing automatically.
+
 ## Project layout
 
 ```

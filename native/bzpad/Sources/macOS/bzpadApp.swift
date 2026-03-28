@@ -5,6 +5,7 @@ import EisenhowerCore
 struct bzpadApp: App {
 
     @State private var store = TaskStore()
+    @State private var contactStore = ContactStore()
     @AppStorage("colorScheme") private var darkMode: DarkMode = .system
     @AppStorage("showMenuBarItem") private var showMenuBarItem: Bool = true
     @AppStorage("textSizeStep") private var textSizeStep: Int = 0
@@ -13,11 +14,18 @@ struct bzpadApp: App {
         WindowGroup {
             macOSRootView()
                 .environment(store)
+                .environment(contactStore)
                 .frame(minWidth: 900, minHeight: 600)
                 .preferredColorScheme(darkMode.colorScheme)
                 .onAppear {
                     QuickAddPanelController.shared.configure(store: store)
                     GlobalHotKeyManager.shared.register()
+                    contactStore.checkReminders(using: store)
+                }
+                .onReceive(NotificationCenter.default.publisher(
+                    for: NSApplication.didBecomeActiveNotification)
+                ) { _ in
+                    store.retryAccessIfNeeded()
                 }
         }
         .commands {
@@ -90,20 +98,26 @@ private struct MenuBarMenuView: View {
     }
 }
 
+// Top-level so CommandPaletteView (in Shared) and macOSRootView can both reference it.
+enum SidebarItem: Hashable {
+    case matrix
+    case archive
+    case people
+}
+
 /// Three-column layout: sidebar navigation | matrix | (future: task detail)
 private struct macOSRootView: View {
 
     @Environment(TaskStore.self) private var store
+    @Environment(ContactStore.self) private var contactStore
     @Environment(\.openSettings) private var openSettings
     @State private var selection: SidebarItem = .matrix
     @AppStorage("claudeAPIKey") private var claudeAPIKey: String = ""
     @State private var isAutoCategorizing = false
     @State private var aiErrorMessage: String? = nil
-
-    enum SidebarItem: Hashable {
-        case matrix
-        case archive
-    }
+    // Forwarded to ContactsView so command palette can trigger "Mark Meeting Done" / Add Contact
+    @State private var contactsMarkDone = false
+    @State private var contactsShowAdd = false
 
     var body: some View {
         NavigationSplitView {
@@ -115,6 +129,12 @@ private struct macOSRootView: View {
                     .navigationTitle("Matrix")
             case .archive:
                 ArchiveView()
+            case .people:
+                ContactsView(
+                    externalShowAdd: $contactsShowAdd,
+                    externalMarkDone: $contactsMarkDone
+                )
+                .environment(contactStore)
             }
         }
         .toolbar {
@@ -153,6 +173,21 @@ private struct macOSRootView: View {
         } message: {
             Text(aiErrorMessage ?? "")
         }
+        // ── Sidebar + command palette keyboard shortcuts ───────
+        .background {
+            Group {
+                Button("") { selection = .matrix }
+                    .keyboardShortcut("1", modifiers: .command)
+                Button("") { selection = .archive }
+                    .keyboardShortcut("2", modifiers: .command)
+                Button("") { selection = .people }
+                    .keyboardShortcut("3", modifiers: .command)
+                Button("") { CommandPaletteController.shared.show(commands: buildCommands()) }
+                    .keyboardShortcut("k", modifiers: .command)
+            }
+            .opacity(0)
+            .allowsHitTesting(false)
+        }
     }
 
     private func handleAIButton() {
@@ -169,6 +204,64 @@ private struct macOSRootView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             NotificationCenter.default.post(name: .focusAPIKeyField, object: nil)
         }
+    }
+
+    // MARK: – Command palette
+
+    private func buildCommands() -> [AppCommand] {
+        let inMatrix  = selection == .matrix
+        let inPeople  = selection == .people
+        let hasFocused = inMatrix && store.focusedId != nil
+
+        var cmds: [AppCommand] = []
+
+        // Navigation
+        cmds.append(.init(title: "Switch to Matrix",  subtitle: nil, systemImage: "square.grid.2x2",
+                          action: { selection = .matrix }))
+        cmds.append(.init(title: "Switch to People",  subtitle: nil, systemImage: "person.2",
+                          action: { selection = .people }))
+        cmds.append(.init(title: "Switch to Archive", subtitle: nil, systemImage: "archivebox",
+                          action: { selection = .archive }))
+
+        // Task actions (matrix context)
+        cmds.append(.init(title: "Add Task", subtitle: "Open quick add", systemImage: "plus.circle",
+                          action: {
+                              QuickAddPanelController.shared.configure(store: store)
+                              QuickAddPanelController.shared.show()
+                          }, isAvailable: inMatrix))
+
+        let focusedQuadrant = store.focusedId.flatMap { id in
+            store.tasksByQuadrant.values.flatMap { $0 }.first(where: { $0.id == id })
+        }?.quadrant
+
+        for q in Quadrant.clockwiseOrder {
+            let q = q  // capture
+            cmds.append(.init(
+                title: "Move to \(q.label)",
+                subtitle: q.subtitle,
+                systemImage: q.systemImage,
+                action: {
+                    if let id = store.focusedId { store.moveTask(id: id, to: q) }
+                },
+                isAvailable: hasFocused && focusedQuadrant != q
+            ))
+        }
+
+        cmds.append(.init(title: "Delete Task", subtitle: "Also: Backspace", systemImage: "trash",
+                          action: { store.deleteFocused() }, isAvailable: hasFocused))
+        cmds.append(.init(title: "Undo", subtitle: nil, systemImage: "arrow.uturn.backward",
+                          action: { store.undo() }, isAvailable: inMatrix))
+        cmds.append(.init(title: "Auto-categorize with AI", subtitle: nil, systemImage: "sparkles",
+                          action: { runAutoCategorize() }, isAvailable: inMatrix))
+
+        // People actions
+        cmds.append(.init(title: "Add Contact", subtitle: nil, systemImage: "person.badge.plus",
+                          action: { contactsShowAdd = true }, isAvailable: inPeople))
+        cmds.append(.init(title: "Mark Meeting Done", subtitle: "For selected contact",
+                          systemImage: "checkmark.circle",
+                          action: { contactsMarkDone = true }, isAvailable: inPeople))
+
+        return cmds
     }
 
     private func runAutoCategorize() {
@@ -198,6 +291,8 @@ private struct macOSRootView: View {
                         .tag(SidebarItem.matrix)
                     Label("Archive", systemImage: "archivebox")
                         .tag(SidebarItem.archive)
+                    Label("People", systemImage: "person.2")
+                        .tag(SidebarItem.people)
                 }
             }
             .listStyle(.sidebar)

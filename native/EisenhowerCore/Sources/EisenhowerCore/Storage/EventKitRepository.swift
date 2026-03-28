@@ -50,15 +50,34 @@ public final class EventKitRepository: TaskRepositoryProtocol {
     // MARK: – TaskRepositoryProtocol: Lifecycle
 
     public func requestAccess() async throws -> Bool {
+        let before = EKEventStore.authorizationStatus(for: .reminder)
+        print("[EventKit] authorizationStatus before request: \(before.rawValue)")
+
+        if currentAuthStatus() { return true }
+
+        if before == .denied || before == .restricted { return false }
+
+        // .notDetermined or .writeOnly — fire the system prompt, then re-read.
         if #available(iOS 17.0, macOS 14.0, *) {
-            return try await ekStore.requestFullAccessToReminders()
+            _ = try? await ekStore.requestFullAccessToReminders()
         } else {
-            return try await withCheckedThrowingContinuation { cont in
-                ekStore.requestAccess(to: .reminder) { granted, error in
-                    if let error { cont.resume(throwing: error) }
-                    else { cont.resume(returning: granted) }
-                }
+            _ = await withCheckedContinuation { cont in
+                ekStore.requestAccess(to: .reminder) { _, _ in cont.resume() }
             }
+        }
+
+        let after = EKEventStore.authorizationStatus(for: .reminder)
+        print("[EventKit] authorizationStatus after request: \(after.rawValue)")
+        return currentAuthStatus()
+    }
+
+    /// Returns true when EventKit reports full read/write access to Reminders.
+    private func currentAuthStatus() -> Bool {
+        let s = EKEventStore.authorizationStatus(for: .reminder)
+        if #available(iOS 17.0, macOS 14.0, *) {
+            return s == .fullAccess
+        } else {
+            return s == .authorized
         }
     }
 

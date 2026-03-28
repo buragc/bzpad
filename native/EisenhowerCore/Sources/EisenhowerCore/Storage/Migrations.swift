@@ -64,5 +64,43 @@ enum Migrations {
                 t.add(column: "userNotes",   .text)
             }
         }
+
+        // v3: 1:1 Contact Manager — contacts + sessions
+        migrator.registerMigration("v3_contacts") { db in
+            try db.create(table: "contacts") { t in
+                t.column("id",              .text).notNull().primaryKey()
+                t.column("name",            .text).notNull()
+                t.column("role",            .text)
+                t.column("area",            .text)
+                t.column("cadenceDays",     .integer).notNull().defaults(to: 14)
+                t.column("lastMeetingDate", .datetime)
+                t.column("notes",           .text).notNull().defaults(to: "")
+                t.column("reminderTaskId",  .text)
+                t.column("createdAt",       .datetime).notNull()
+                t.column("updatedAt",       .datetime).notNull()
+            }
+
+            try db.create(table: "sessions") { t in
+                t.column("id",        .text).notNull().primaryKey()
+                t.column("contactId", .text).notNull()
+                    .references("contacts", onDelete: .cascade)
+                t.column("date",      .datetime).notNull()
+                t.column("notes",     .text).notNull().defaults(to: "")
+                t.column("createdAt", .datetime).notNull()
+            }
+
+            try db.create(indexOn: "sessions", columns: ["contactId"])
+        }
+
+        // v4: Keyboard-first navigation — manual task ordering within quadrants.
+        // Positions are keyed by task UUID string. When tasks are loaded from EventKit
+        // they are sorted by position ascending; new tasks append at the end.
+        migrator.registerMigration("v4_task_positions") { db in
+            try db.create(table: "task_positions") { t in
+                t.column("id",       .text).notNull().primaryKey()  // Task UUID string
+                t.column("quadrant", .integer).notNull()
+                t.column("position", .integer).notNull()
+            }
+        }
     }
 }

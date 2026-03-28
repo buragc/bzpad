@@ -31,6 +31,20 @@ public enum Quadrant: Int, Codable, Sendable, DatabaseValueConvertible, CaseIter
         case .eliminate: return "Eliminate"
         }
     }
+
+    /// Clockwise visual order: top-left → top-right → bottom-right → bottom-left.
+    /// Used for Cmd+[ / Cmd+] quadrant cycling and Cmd+←/→ task movement.
+    public static let clockwiseOrder: [Quadrant] = [.doFirst, .schedule, .eliminate, .delegate]
+
+    /// Returns the next quadrant in the clockwise direction.
+    public func next(clockwise: Bool = true) -> Quadrant {
+        let order = Quadrant.clockwiseOrder
+        guard let idx = order.firstIndex(of: self) else { return self }
+        let next = clockwise
+            ? order[(idx + 1) % order.count]
+            : order[(idx + order.count - 1) % order.count]
+        return next
+    }
 }
 
 public enum TaskSource: String, Codable, Sendable, DatabaseValueConvertible {

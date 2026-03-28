@@ -123,6 +123,27 @@ Platform: iOS (P0) + macOS (P0) — SwiftUI native. Web: OUT.
 ### T19: Multi-select + bulk operations
 **What:** FR-1.3.3-1.3.4 — Cmd+click, Shift+click multi-select. Bulk move/delete/archive.
 
+### T20: CloudKit sync for Contact data
+**What:** CKRecord types for Contact + Session; sync ContactStore to CloudKit private DB.
+**Why:** Contact data currently stays local (SQLite). iCloud sync enables cross-device access.
+**Depends on:** T4 (CloudKit for tasks must be established first)
+**Effort:** human ~2d / CC ~20min
+
+### T21: AI-suggested meeting topics for 1:1 contacts
+**What:** "Suggest topics" button in ContactDetailView → calls Claude API (already wired in ClaudeAutoCategorizer pattern) with contact name + session history → returns 3-5 suggested agenda items.
+**Why:** High-value differentiation; reduces prep friction. Claude API key already configurable in Settings.
+**Effort:** human ~1d / CC ~10min
+
+### T22: iOS contact management UI
+**What:** ContactsView adapted for iPhone (tab or sheet presentation, not NavigationSplitView).
+**Why:** macOS-first scope confirmed; iOS parity deferred until macOS is stable.
+**Effort:** human ~2d / CC ~20min
+
+### T23: Fix AppDatabase.shared force-try crash risk
+**What:** Replace `try!` with optional initialization + graceful disable of GRDB-dependent features (Contacts) when DB unavailable. Show error state in People panel instead of crashing.
+**Why:** Blast radius increases as more features depend on AppDatabase. A corrupted DB crashes the whole app today.
+**Effort:** human ~2hr / CC ~5min
+
 ## REFERENCE
 - React prototype: /Users/buragc/dev/bzpad/src/
   - Data model: src/types.ts

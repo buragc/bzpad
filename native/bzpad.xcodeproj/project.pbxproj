@@ -8,31 +8,39 @@
 
 /* Begin PBXBuildFile section */
 		041E83BFBF37B57851321F5E /* HotkeySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9A5CDAFE951FFCBFEC00EE3 /* HotkeySettings.swift */; };
+		06720FF3E27E5F652A76E6D2 /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89B01C503F8F5A199315FFD /* ContactsView.swift */; };
 		072B63508D49B23FF3EFE128 /* QuadrantDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B879268AAAFF09EC544C463 /* QuadrantDetectorTests.swift */; };
 		089301FE56B112BC50F62FC1 /* EisenhowerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 67BA23F1174BA5828E140467 /* EisenhowerCore */; };
 		08EA7615C80CEE2C543DC7FF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
 		0BD5765347956A3524002C14 /* EisenhowerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 807CD6149D3CD4ED19D35C52 /* EisenhowerCore */; };
 		18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */; };
+		1A4D217D97988688F5089C5C /* ClaudeContactSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142FC7A62A9EDCEE75F8C268 /* ClaudeContactSuggester.swift */; };
 		1A9305B8DC328916E261C3BC /* ClaudeAutoCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */; };
 		1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
+		1E9937F9DFB7D6060D308702 /* ClaudeContactSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142FC7A62A9EDCEE75F8C268 /* ClaudeContactSuggester.swift */; };
 		1EE094BD8D265C7E7F52DA14 /* UrgencyCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E32B76A8CDE435A1CDC2E7 /* UrgencyCalculatorTests.swift */; };
 		3323E00369C5C36D9C09CD6F /* DateParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */; };
 		393A34E8F20C2D2B7D296940 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */; };
 		397DC92C81BB8576943F9F79 /* MatrixView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E778CB0555E26883DD5ACB88 /* MatrixView.swift */; };
+		3B9126F1D1082893CFB11B2F /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE49FA36F18DC9D299957D4 /* CommandPaletteView.swift */; };
 		481EE69A31F6D2F364414219 /* QuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */; };
 		4EC53647BCE796FE0B7E14F6 /* bzpadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BB8D3E425D47545BE73965E /* bzpadApp.swift */; };
+		63C5841E7E3901A6A517B1A7 /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EE49FA36F18DC9D299957D4 /* CommandPaletteView.swift */; };
 		71546E840FFF03ABACAFE1AE /* bzpadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4AA4A9CBAAD2CF86475BF /* bzpadApp.swift */; };
 		7A142374A672A637A0E6CE02 /* EisenhowerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9282F216408F10CE9FDFFB73 /* EisenhowerCore */; };
 		878B3198A3CCAB6B9020F114 /* PlatformColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */; };
+		8A105320A312C51DBE35A041 /* CommandPalettePanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05C37819B2E1A2F83704B88 /* CommandPalettePanel.swift */; };
 		8C748D8FCA8644DB6FFE57FE /* TaskCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9121AC6C1B449217D38A39E1 /* TaskCardView.swift */; };
 		9831A9D255A59C87FFC7F89F /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE3FA541E2ADB193805E085 /* ArchiveView.swift */; };
 		993F23CD72810BCD2981BA6C /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE3FA541E2ADB193805E085 /* ArchiveView.swift */; };
 		9A4CDA80FBE4D18DB96EC85B /* TagExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */; };
 		9C37B231A1CEEE24DE0980B5 /* QuadrantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D571F90582E46E765C1C1F89 /* QuadrantView.swift */; };
+		9D8A86B45BFC3A5BF00F5480 /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89B01C503F8F5A199315FFD /* ContactsView.swift */; };
 		A09CBFB30618F519FD19B766 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C04A231165262D3B874F682 /* SettingsView.swift */; };
 		A9E64E5F85AAE628EC05FC61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */; };
 		B29269EEF7A518BAD62B10AB /* QuickAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */; };
 		C035DAADE425953E79E32187 /* ClaudeAutoCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */; };
+		D5333C4F1586A612650C57BA /* ContactStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CF99327BCFB035091447071 /* ContactStoreTests.swift */; };
 		DAC8D35B33F863CC3901D800 /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */; };
 		E01DD3DFF4A1631616A853E0 /* TaskCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9121AC6C1B449217D38A39E1 /* TaskCardView.swift */; };
 		E8B012E7ABD4ADEB6156A409 /* MatrixView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E778CB0555E26883DD5ACB88 /* MatrixView.swift */; };
@@ -40,10 +48,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		142FC7A62A9EDCEE75F8C268 /* ClaudeContactSuggester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeContactSuggester.swift; sourceTree = "<group>"; };
+		1CF99327BCFB035091447071 /* ContactStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactStoreTests.swift; sourceTree = "<group>"; };
 		2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAutoCategorizer.swift; sourceTree = "<group>"; };
+		2EE49FA36F18DC9D299957D4 /* CommandPaletteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteView.swift; sourceTree = "<group>"; };
 		34DABD631D71D57BA1BFD5D5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3E6255947EAA6E2143F2806F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "bzpad-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F3215005B75B83E9AD05531 /* bzpad-iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; name = "bzpad-iOS.app"; path = bzpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateParserTests.swift; sourceTree = "<group>"; };
 		58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5BB8D3E425D47545BE73965E /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
@@ -53,14 +64,16 @@
 		9121AC6C1B449217D38A39E1 /* TaskCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCardView.swift; sourceTree = "<group>"; };
 		97F52FBE946D55F8509CD9A7 /* PlatformColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformColors.swift; sourceTree = "<group>"; };
 		A5F31BEA464C760A71686E36 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
-		A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "bzpad-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A7340CCBDEBE1B8B9A2DD82E /* bzpad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bzpad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2AF2475B9019C5F0D39DA24 /* QuickAddPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddPanel.swift; sourceTree = "<group>"; };
 		B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddView.swift; sourceTree = "<group>"; };
 		C9A5CDAFE951FFCBFEC00EE3 /* HotkeySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeySettings.swift; sourceTree = "<group>"; };
+		D05C37819B2E1A2F83704B88 /* CommandPalettePanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPalettePanel.swift; sourceTree = "<group>"; };
 		D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagExtractorTests.swift; sourceTree = "<group>"; };
 		D571F90582E46E765C1C1F89 /* QuadrantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuadrantView.swift; sourceTree = "<group>"; };
 		D78D7BE57738A52BD3EDE528 /* EisenhowerCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EisenhowerCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DB6FFCF6945ABC2BA20A33A6 /* EisenhowerCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EisenhowerCore; path = EisenhowerCore; sourceTree = SOURCE_ROOT; };
+		D89B01C503F8F5A199315FFD /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
+		DB6FFCF6945ABC2BA20A33A6 /* EisenhowerCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = EisenhowerCore; sourceTree = SOURCE_ROOT; };
 		DEE3FA541E2ADB193805E085 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		E778CB0555E26883DD5ACB88 /* MatrixView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixView.swift; sourceTree = "<group>"; };
 		E9E4AA4A9CBAAD2CF86475BF /* bzpadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = bzpadApp.swift; sourceTree = "<group>"; };
@@ -102,6 +115,7 @@
 				E9AB89078323C762DF2D603E /* Views */,
 				58EBF0047B7984EFA0E7D4C7 /* Assets.xcassets */,
 				2BE278E36A3F3484832E8958 /* ClaudeAutoCategorizer.swift */,
+				142FC7A62A9EDCEE75F8C268 /* ClaudeContactSuggester.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -145,6 +159,7 @@
 			children = (
 				F25EA3F25453ABC046855039 /* bzpad.entitlements */,
 				5BB8D3E425D47545BE73965E /* bzpadApp.swift */,
+				D05C37819B2E1A2F83704B88 /* CommandPalettePanel.swift */,
 				C9A5CDAFE951FFCBFEC00EE3 /* HotkeySettings.swift */,
 				3E6255947EAA6E2143F2806F /* Info.plist */,
 				B2AF2475B9019C5F0D39DA24 /* QuickAddPanel.swift */,
@@ -164,6 +179,8 @@
 			isa = PBXGroup;
 			children = (
 				DEE3FA541E2ADB193805E085 /* ArchiveView.swift */,
+				2EE49FA36F18DC9D299957D4 /* CommandPaletteView.swift */,
+				D89B01C503F8F5A199315FFD /* ContactsView.swift */,
 				E778CB0555E26883DD5ACB88 /* MatrixView.swift */,
 				D571F90582E46E765C1C1F89 /* QuadrantView.swift */,
 				B93967C2A2DB1300E0CCF77D /* QuickAddView.swift */,
@@ -185,6 +202,7 @@
 		EBE9B4B1560F472B57C1807D /* EisenhowerCoreTests */ = {
 			isa = PBXGroup;
 			children = (
+				1CF99327BCFB035091447071 /* ContactStoreTests.swift */,
 				3FC11B83CBF4A27798A6F5FC /* DateParserTests.swift */,
 				8B879268AAAFF09EC544C463 /* QuadrantDetectorTests.swift */,
 				D10DCEE1A1BE509DE6154361 /* TagExtractorTests.swift */,
@@ -198,7 +216,7 @@
 			isa = PBXGroup;
 			children = (
 				3F3215005B75B83E9AD05531 /* bzpad-iOS.app */,
-				A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */,
+				A7340CCBDEBE1B8B9A2DD82E /* bzpad.app */,
 				D78D7BE57738A52BD3EDE528 /* EisenhowerCoreTests.xctest */,
 			);
 			name = Products;
@@ -281,7 +299,7 @@
 				807CD6149D3CD4ED19D35C52 /* EisenhowerCore */,
 			);
 			productName = "bzpad-macOS";
-			productReference = A7340CCBDEBE1B8B9A2DD82E /* bzpad-macOS.app */;
+			productReference = A7340CCBDEBE1B8B9A2DD82E /* bzpad.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -293,6 +311,12 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					B01603AEA3BA881A26FC6E69 = {
+						ProvisioningStyle = Automatic;
+					};
+					D396F3EB43295DCD51AEAE1C = {
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 194411ED9308030F59D02991 /* Build configuration list for PBXProject "bzpad" */;
@@ -343,6 +367,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5333C4F1586A612650C57BA /* ContactStoreTests.swift in Sources */,
 				3323E00369C5C36D9C09CD6F /* DateParserTests.swift in Sources */,
 				072B63508D49B23FF3EFE128 /* QuadrantDetectorTests.swift in Sources */,
 				9A4CDA80FBE4D18DB96EC85B /* TagExtractorTests.swift in Sources */,
@@ -357,6 +382,10 @@
 			files = (
 				9831A9D255A59C87FFC7F89F /* ArchiveView.swift in Sources */,
 				C035DAADE425953E79E32187 /* ClaudeAutoCategorizer.swift in Sources */,
+				1E9937F9DFB7D6060D308702 /* ClaudeContactSuggester.swift in Sources */,
+				8A105320A312C51DBE35A041 /* CommandPalettePanel.swift in Sources */,
+				3B9126F1D1082893CFB11B2F /* CommandPaletteView.swift in Sources */,
+				9D8A86B45BFC3A5BF00F5480 /* ContactsView.swift in Sources */,
 				041E83BFBF37B57851321F5E /* HotkeySettings.swift in Sources */,
 				397DC92C81BB8576943F9F79 /* MatrixView.swift in Sources */,
 				18AF143F68DD71244F23BC9B /* PlatformColors.swift in Sources */,
@@ -375,6 +404,9 @@
 			files = (
 				993F23CD72810BCD2981BA6C /* ArchiveView.swift in Sources */,
 				1A9305B8DC328916E261C3BC /* ClaudeAutoCategorizer.swift in Sources */,
+				1A4D217D97988688F5089C5C /* ClaudeContactSuggester.swift in Sources */,
+				63C5841E7E3901A6A517B1A7 /* CommandPaletteView.swift in Sources */,
+				06720FF3E27E5F652A76E6D2 /* ContactsView.swift in Sources */,
 				E8B012E7ABD4ADEB6156A409 /* MatrixView.swift in Sources */,
 				878B3198A3CCAB6B9020F114 /* PlatformColors.swift in Sources */,
 				1CE55B4E533BFEF84F0DE11D /* QuadrantView.swift in Sources */,
@@ -454,7 +486,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = bzpad/Sources/macOS/bzpad.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = LKV23MKRSH;
 				INFOPLIST_FILE = bzpad/Sources/macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -473,6 +507,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = bzpad/Sources/iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -582,7 +617,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = bzpad/Sources/macOS/bzpad.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = LKV23MKRSH;
 				INFOPLIST_FILE = bzpad/Sources/macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -601,6 +638,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = bzpad/Sources/iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

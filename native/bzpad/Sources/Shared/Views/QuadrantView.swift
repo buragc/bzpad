@@ -5,6 +5,12 @@ struct QuadrantView: View {
 
     let quadrant: Quadrant
     @Binding var quickAddTarget: Quadrant?
+    var isFocused: Bool = false
+    var onRequestFocus: (() -> Void)? = nil
+    var onRequestQuickAdd: (() -> Void)? = nil
+    /// Bound to MatrixView's @FocusState — setting this from the parent transfers
+    /// AppKit first-responder status to this quadrant's ScrollView.
+    var quadrantFocus: FocusState<Quadrant?>.Binding
 
     @Environment(TaskStore.self) private var store
     @State private var isDropTarget = false
@@ -14,16 +20,32 @@ struct QuadrantView: View {
             // Header is always pinned here — it never moves regardless of task count
             header
             Divider()
-            // Tasks scroll independently within their quadrant panel
-            ScrollView {
-                taskList
+            // ScrollViewReader lets us scroll a task into view when keyboard focus moves.
+            // .focusable() puts the ScrollView in the macOS responder chain.
+            // .focused() lets MatrixView transfer first-responder here via @FocusState.
+            ScrollViewReader { proxy in
+                ScrollView {
+                    taskList
+                }
+                .focusable()
+                .focused(quadrantFocus, equals: quadrant)
+                .onKeyPress(phases: .down) { press in
+                    handleKeyPress(press)
+                }
+                .onChange(of: store.focusedId) { _, newId in
+                    guard let id = newId,
+                          store.activeTasks(in: quadrant).contains(where: { $0.id == id })
+                    else { return }
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        proxy.scrollTo(id, anchor: .center)
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture { onRequestFocus?() }
         // Drop destination covers the full quadrant panel.
-        // Accepts two payload formats:
-        //   "<UUID>"        — existing task being moved between quadrants
-        //   "inbox:<title>" — inbox reminder being categorised into this quadrant
         .dropDestination(for: String.self) { items, _ in
             guard let payload = items.first else { return false }
             if let id = UUID(uuidString: payload) {
@@ -39,17 +61,92 @@ struct QuadrantView: View {
         } isTargeted: { targeted in
             isDropTarget = targeted
         }
+        // Drop color tint
         .overlay {
             Rectangle()
                 .fill(quadrant.color.opacity(isDropTarget ? 0.07 : 0))
                 .allowsHitTesting(false)
         }
+        // Drop border
         .overlay {
             Rectangle()
                 .strokeBorder(quadrant.color.opacity(isDropTarget ? 0.6 : 0), lineWidth: 1.5)
                 .allowsHitTesting(false)
         }
+        // Keyboard focus ring — visible when this quadrant has cursor focus
+        .overlay {
+            if isFocused {
+                Rectangle()
+                    .strokeBorder(quadrant.color.opacity(0.7), lineWidth: 2.5)
+                    .allowsHitTesting(false)
+            }
+        }
+        .background(isFocused ? quadrant.color.opacity(0.03) : Color.clear)
         .animation(.easeInOut(duration: 0.15), value: isDropTarget)
+        .animation(.easeInOut(duration: 0.15), value: isFocused)
+    }
+
+    // MARK: – Keyboard handler
+
+    @discardableResult
+    private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
+        guard isFocused else { return .ignored }
+
+        // Return — edit focused task if one is selected, otherwise jump to quick-add
+        if press.key == .return && press.modifiers.isEmpty {
+            if store.focusedId != nil {
+                store.editingId = store.focusedId
+            } else {
+                onRequestQuickAdd?()
+            }
+            return .handled
+        }
+
+        // Arrow navigation within quadrant
+        if press.key == .upArrow && press.modifiers.isEmpty {
+            store.moveFocus(in: quadrant, up: true)
+            return .handled
+        }
+        if press.key == .downArrow && press.modifiers.isEmpty {
+            store.moveFocus(in: quadrant, up: false)
+            return .handled
+        }
+
+        // Backspace/Delete — delete focused task
+        if (press.key == .delete || press.key == .deleteForward) && press.modifiers.isEmpty {
+            if store.focusedId != nil {
+                store.deleteFocused()
+                return .handled
+            }
+        }
+
+        // D — vim-style delete
+        if press.characters == "d" && press.modifiers.isEmpty && store.focusedId != nil {
+            store.deleteFocused()
+            return .handled
+        }
+
+        // Cmd+↑ / Cmd+↓ — reorder within quadrant
+        if press.key == .upArrow && press.modifiers == .command {
+            if let id = store.focusedId { store.reorderTask(id: id, up: true) }
+            return .handled
+        }
+        if press.key == .downArrow && press.modifiers == .command {
+            if let id = store.focusedId { store.reorderTask(id: id, up: false) }
+            return .handled
+        }
+
+        // Cmd+← / Cmd+→ — move focused task to adjacent quadrant (clockwise)
+        if press.key == .leftArrow && press.modifiers == .command {
+            store.moveFocusedTask(clockwise: false)
+            return .handled
+        }
+        if press.key == .rightArrow && press.modifiers == .command {
+            store.moveFocusedTask(clockwise: true)
+            return .handled
+        }
+
+        return .ignored
     }
 
     // MARK: – Header
@@ -87,7 +184,8 @@ struct QuadrantView: View {
                 emptyState
             } else {
                 ForEach(tasks) { task in
-                    TaskCardView(task: task)
+                    TaskCardView(task: task, isKeyboardFocused: store.focusedId == task.id)
+                        .id(task.id)
                     if task.id != tasks.last?.id {
                         Divider().padding(.leading, 14)
                     }

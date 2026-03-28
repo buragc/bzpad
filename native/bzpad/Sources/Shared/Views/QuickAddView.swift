@@ -8,6 +8,9 @@ struct QuickAddView: View {
     /// When non-nil, new tasks are placed in this quadrant;
     /// otherwise QuadrantDetector picks automatically.
     let defaultQuadrant: Quadrant?
+    /// Set to `true` from outside to programmatically focus the text field.
+    /// Automatically reset to `false` after focus is granted.
+    var focusTrigger: Binding<Bool>? = nil
 
     @Environment(TaskStore.self) private var store
     @FocusState private var isFocused: Bool
@@ -39,6 +42,12 @@ struct QuickAddView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
         .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
         .animation(.spring(duration: 0.25), value: text.isEmpty)
+        .onChange(of: focusTrigger?.wrappedValue) { _, newValue in
+            if newValue == true {
+                isFocused = true
+                focusTrigger?.wrappedValue = false
+            }
+        }
     }
 
     private func submit() {
