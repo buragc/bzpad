@@ -23,7 +23,8 @@ from .todoist import (
     TodoistRateLimitError,
 )
 from .widgets.quadrant import QuadrantPanel
-from .widgets.task_input import ParsedTask, TaskInputModal
+from .widgets.task_detail import TaskDetailModal
+from .widgets.task_input import ParsedTask, TaskEditModal, TaskInputModal
 
 if TYPE_CHECKING:
     pass
@@ -286,10 +287,16 @@ class MatrixScreen(Screen):
         ("ctrl+j", "prev_quadrant", "◀ Quad"),
         ("ctrl+k", "next_quadrant", "Quad ▶"),
         ("n", "new_task", "New"),
+        ("e", "edit_task", "Edit"),
+        ("enter", "show_detail", "Detail"),
         ("c", "complete_task", "Complete"),
         ("x", "delete_task", "Delete"),
         ("greater_than_sign", "move_task_forward", "Move ▶"),
         ("less_than_sign", "move_task_back", "◀ Move"),
+        ("1", "move_to_quadrant_1", "→Q1"),
+        ("2", "move_to_quadrant_2", "→Q2"),
+        ("3", "move_to_quadrant_3", "→Q3"),
+        ("4", "move_to_quadrant_4", "→Q4"),
         ("slash", "filter", "Search"),
         ("ctrl+q", "quit", "Quit"),
         ("up,k", "navigate_up", ""),
@@ -481,6 +488,41 @@ class MatrixScreen(Screen):
         except TodoistError as e:
             self.notify(f"Error creating task: {e.message}", severity="error")
 
+    @work
+    async def action_edit_task(self) -> None:
+        """Edit the selected task."""
+        panel = self._get_focused_panel()
+        task = panel.get_selected_task()
+
+        if not task or not self.client:
+            return
+
+        parsed = await self.app.push_screen_wait(TaskEditModal(task))
+        if parsed:
+            try:
+                await self.client.update_task(
+                    task.id,
+                    content=parsed.content,
+                    due_string=parsed.due_string,
+                    labels=parsed.labels,
+                )
+                self.notify("Task updated")
+                await self._refresh_data()
+            except TodoistError as e:
+                self.notify(f"Error updating task: {e.message}", severity="error")
+
+    @work
+    async def action_show_detail(self) -> None:
+        """Show task detail modal."""
+        panel = self._get_focused_panel()
+        task = panel.get_selected_task()
+
+        if not task:
+            self.notify("No task selected")
+            return
+
+        await self.app.push_screen_wait(TaskDetailModal(task))
+
     async def action_complete_task(self) -> None:
         """Complete the selected task."""
         panel = self._get_focused_panel()
@@ -544,6 +586,42 @@ class MatrixScreen(Screen):
         """Move task to previous quadrant."""
         await self._move_task(-1)
 
+    async def _move_task_to_quadrant(self, target: Quadrant) -> None:
+        """Move selected task directly to a specific quadrant."""
+        panel = self._get_focused_panel()
+        task = panel.get_selected_task()
+
+        if not task or not self.client or not self.config:
+            return
+
+        if task.quadrant == target:
+            self.notify(f"Already in {target.display_name}")
+            return
+
+        section_id = self.config.get_section_id(target)
+        if not section_id:
+            self.notify("Target section not configured", severity="error")
+            return
+
+        try:
+            await self.client.move_task(task.id, section_id)
+            self.notify(f"Moved to {target.display_name}")
+            await self._refresh_data()
+        except TodoistError as e:
+            self.notify(f"Error moving task: {e.message}", severity="error")
+
+    async def action_move_to_quadrant_1(self) -> None:
+        await self._move_task_to_quadrant(Quadrant.DO_NOW)
+
+    async def action_move_to_quadrant_2(self) -> None:
+        await self._move_task_to_quadrant(Quadrant.PLAN)
+
+    async def action_move_to_quadrant_3(self) -> None:
+        await self._move_task_to_quadrant(Quadrant.HAND_OFF)
+
+    async def action_move_to_quadrant_4(self) -> None:
+        await self._move_task_to_quadrant(Quadrant.DROP)
+
     def _apply_filter(self) -> None:
         """Apply current filter query to all panels."""
         query = self.filter_query.lower()
@@ -569,23 +647,6 @@ class MatrixScreen(Screen):
                 self.notify(f"Filtering: \"{result}\"")
             else:
                 self.notify("Filter cleared")
-
-    def action_show_info(self) -> None:
-        """Show task info."""
-        panel = self._get_focused_panel()
-        task = panel.get_selected_task()
-
-        if task:
-            info = f"{task.content}"
-            if task.description:
-                info += f"\n\n{task.description}"
-            if task.due:
-                info += f"\n\nDue: {task.due.string or task.due.date}"
-            if task.labels:
-                info += f"\nLabels: {', '.join(task.labels)}"
-            self.notify(info, title="Task Info")
-        else:
-            self.notify("No task selected")
 
     def action_reconfigure(self) -> None:
         """Re-enter setup."""

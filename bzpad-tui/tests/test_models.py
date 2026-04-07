@@ -12,9 +12,9 @@ class TestQuadrant(unittest.TestCase):
     def test_display_names(self) -> None:
         """Test quadrant display names."""
         self.assertEqual(Quadrant.DO_NOW.display_name, "Do Now")
-        self.assertEqual(Quadrant.PLAN.display_name, "Plan")
-        self.assertEqual(Quadrant.HAND_OFF.display_name, "Hand Off")
-        self.assertEqual(Quadrant.DROP.display_name, "Drop")
+        self.assertEqual(Quadrant.PLAN.display_name, "Do This Week")
+        self.assertEqual(Quadrant.HAND_OFF.display_name, "Do This Month")
+        self.assertEqual(Quadrant.DROP.display_name, "Maybe One Day")
 
     def test_quadrant_values(self) -> None:
         """Test quadrant values."""

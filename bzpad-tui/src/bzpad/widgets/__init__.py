@@ -1,6 +1,7 @@
 """Textual widgets for bzpad."""
 
 from .quadrant import QuadrantPanel
-from .task_input import TaskInputModal
+from .task_detail import TaskDetailModal
+from .task_input import TaskEditModal, TaskInputModal
 
-__all__ = ["QuadrantPanel", "TaskInputModal"]
+__all__ = ["QuadrantPanel", "TaskDetailModal", "TaskEditModal", "TaskInputModal"]
