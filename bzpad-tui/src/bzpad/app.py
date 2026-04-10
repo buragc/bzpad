@@ -19,6 +19,7 @@ from .models import Quadrant, Task
 from .todoist import (
     TodoistAuthError,
     TodoistClient,
+    TodoistConnectionError,
     TodoistError,
     TodoistRateLimitError,
 )
@@ -164,6 +165,9 @@ class SetupScreen(Screen):
         except TodoistAuthError:
             message.update("Invalid API token. Please check and try again.")
             message.add_class("error")
+        except TodoistConnectionError:
+            message.update("No internet connection. Check your network and try again.")
+            message.add_class("error")
         except TodoistError as e:
             message.update(f"API error: {e.message}")
             message.add_class("error")
@@ -205,6 +209,9 @@ class SetupScreen(Screen):
             # Switch to main screen
             await self.app.push_screen("matrix")
 
+        except TodoistConnectionError:
+            message.update("No internet connection. Check your network and try again.")
+            message.add_class("error")
         except TodoistError as e:
             message.update(f"Error creating sections: {e.message}")
             message.add_class("error")
@@ -281,6 +288,12 @@ class MatrixScreen(Screen):
     MatrixScreen > QuadrantPanel {
         height: 100%;
     }
+    MatrixScreen.--offline {
+        opacity: 0.5;
+    }
+    MatrixScreen.--offline > QuadrantPanel.--active {
+        border: dashed $warning;
+    }
     """
 
     BINDINGS = [
@@ -315,6 +328,7 @@ class MatrixScreen(Screen):
         self.last_refresh: datetime | None = None
         self.is_stale: bool = False
         self.filter_query: str = ""
+        self.is_offline: bool = False
 
     def compose(self) -> ComposeResult:
         """Compose the matrix screen."""
@@ -369,6 +383,21 @@ class MatrixScreen(Screen):
 
             self.last_refresh = datetime.now()
             self.is_stale = False
+
+            # Transition from offline to online
+            if self.is_offline:
+                self.is_offline = False
+                self.remove_class("--offline")
+                self.notify("Back online", severity="information")
+
+            self._update_footer()
+
+        except TodoistConnectionError:
+            if not self.is_offline:
+                self.is_offline = True
+                self.add_class("--offline")
+                self.notify("Offline — showing cached data", severity="warning")
+            self.is_stale = True
             self._update_footer()
 
         except TodoistAuthError:
@@ -384,8 +413,11 @@ class MatrixScreen(Screen):
             self.notify(f"API error: {e.message}", severity="error")
 
     async def _periodic_refresh(self) -> None:
-        """Periodic refresh of data."""
-        if self.last_refresh and datetime.now() - self.last_refresh > timedelta(seconds=60):
+        """Periodic refresh of data. When offline, attempts reconnection."""
+        if self.is_offline:
+            # Always try to reconnect when offline
+            await self._refresh_data()
+        elif self.last_refresh and datetime.now() - self.last_refresh > timedelta(seconds=60):
             await self._refresh_data()
 
     def _update_footer(self) -> None:
@@ -398,14 +430,32 @@ class MatrixScreen(Screen):
         count = len(self.tasks_by_quadrant[quadrant])
 
         status = f"{quadrant.display_name} — {count} tasks"
-        if self.is_stale:
-            status += " [stale]"
+        if self.is_offline:
+            status += "  ⚠ OFFLINE"
+        elif self.is_stale:
+            status += "  [stale]"
 
         self.sub_title = status
 
     def _get_focused_panel(self) -> QuadrantPanel:
         """Get the currently focused quadrant panel."""
         return self.panels[self.focused_quadrant_idx]
+
+    def _check_offline(self) -> bool:
+        """Check if app is offline and notify user. Returns True if offline."""
+        if self.is_offline:
+            self.notify("Offline — changes won't be saved", severity="warning")
+            return True
+        return False
+
+    def _enter_offline(self) -> None:
+        """Transition to offline mode (dim screen, update footer)."""
+        if not self.is_offline:
+            self.is_offline = True
+            self.add_class("--offline")
+            self.notify("Connection lost — offline mode", severity="warning")
+        self.is_stale = True
+        self._update_footer()
 
     # Clockwise order through the 2x2 grid: top-left, top-right, bottom-right, bottom-left
     CLOCKWISE_ORDER = [0, 1, 3, 2]
@@ -446,6 +496,9 @@ class MatrixScreen(Screen):
     @work
     async def action_new_task(self) -> None:
         """Create a new task in the focused quadrant."""
+        if self._check_offline():
+            return
+
         panel = self._get_focused_panel()
 
         parsed = await self.app.push_screen_wait(
@@ -485,12 +538,17 @@ class MatrixScreen(Screen):
             )
             self.notify("Task created")
             await self._refresh_data()
+        except TodoistConnectionError:
+            self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error creating task: {e.message}", severity="error")
 
     @work
     async def action_edit_task(self) -> None:
         """Edit the selected task."""
+        if self._check_offline():
+            return
+
         panel = self._get_focused_panel()
         task = panel.get_selected_task()
 
@@ -508,6 +566,8 @@ class MatrixScreen(Screen):
                 )
                 self.notify("Task updated")
                 await self._refresh_data()
+            except TodoistConnectionError:
+                self._enter_offline()
             except TodoistError as e:
                 self.notify(f"Error updating task: {e.message}", severity="error")
 
@@ -525,6 +585,9 @@ class MatrixScreen(Screen):
 
     async def action_complete_task(self) -> None:
         """Complete the selected task."""
+        if self._check_offline():
+            return
+
         panel = self._get_focused_panel()
         task = panel.get_selected_task()
 
@@ -535,11 +598,16 @@ class MatrixScreen(Screen):
             await self.client.complete_task(task.id)
             self.notify("Task completed")
             await self._refresh_data()
+        except TodoistConnectionError:
+            self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error completing task: {e.message}", severity="error")
 
     async def action_delete_task(self) -> None:
         """Delete the selected task."""
+        if self._check_offline():
+            return
+
         panel = self._get_focused_panel()
         task = panel.get_selected_task()
 
@@ -550,11 +618,16 @@ class MatrixScreen(Screen):
             await self.client.delete_task(task.id)
             self.notify("Task deleted")
             await self._refresh_data()
+        except TodoistConnectionError:
+            self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error deleting task: {e.message}", severity="error")
 
     async def _move_task(self, direction: int) -> None:
         """Move task to adjacent quadrant. direction: +1 forward, -1 back."""
+        if self._check_offline():
+            return
+
         panel = self._get_focused_panel()
         task = panel.get_selected_task()
 
@@ -575,6 +648,8 @@ class MatrixScreen(Screen):
             await self.client.move_task(task.id, target_section_id)
             self.notify(f"Moved to {target_quadrant.display_name}")
             await self._refresh_data()
+        except TodoistConnectionError:
+            self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error moving task: {e.message}", severity="error")
 
@@ -588,6 +663,9 @@ class MatrixScreen(Screen):
 
     async def _move_task_to_quadrant(self, target: Quadrant) -> None:
         """Move selected task directly to a specific quadrant."""
+        if self._check_offline():
+            return
+
         panel = self._get_focused_panel()
         task = panel.get_selected_task()
 
@@ -607,6 +685,8 @@ class MatrixScreen(Screen):
             await self.client.move_task(task.id, section_id)
             self.notify(f"Moved to {target.display_name}")
             await self._refresh_data()
+        except TodoistConnectionError:
+            self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error moving task: {e.message}", severity="error")
 

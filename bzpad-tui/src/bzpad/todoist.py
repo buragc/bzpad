@@ -35,6 +35,13 @@ class TodoistAuthError(TodoistError):
     pass
 
 
+class TodoistConnectionError(TodoistError):
+    """Network connectivity error (no internet, DNS failure, timeout)."""
+
+    def __init__(self, message: str = "No internet connection"):
+        super().__init__(message, None)
+
+
 class TodoistRateLimitError(TodoistError):
     """Rate limit error (429)."""
 
@@ -67,11 +74,17 @@ class TodoistClient:
         """Make an authenticated request to the API.
 
         Raises:
+            TodoistConnectionError: If network is unreachable or request times out
             TodoistAuthError: If 401/403 response
             TodoistRateLimitError: If 429 response
             TodoistError: For other non-2xx responses
         """
-        response = await self.client.request(method, path, **kwargs)
+        try:
+            response = await self.client.request(method, path, **kwargs)
+        except httpx.ConnectError as e:
+            raise TodoistConnectionError(f"Cannot reach server: {e}")
+        except httpx.TimeoutException as e:
+            raise TodoistConnectionError(f"Request timed out: {e}")
 
         if response.status_code == 401 or response.status_code == 403:
             raise TodoistAuthError("Invalid API token", response.status_code)
