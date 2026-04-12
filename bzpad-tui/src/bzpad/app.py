@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from textual.app import App, ComposeResult
-from textual.containers import Grid, Horizontal, Vertical
+from textual.containers import Container, Grid, Horizontal, Vertical
 from textual.reactive import reactive
 from textual.screen import ModalScreen, Screen
 from textual import work
@@ -294,6 +294,22 @@ class MatrixScreen(Screen):
     MatrixScreen.--offline > QuadrantPanel.--active {
         border: dashed $warning;
     }
+    MatrixScreen > #processing-overlay {
+        display: none;
+        width: 100%;
+        height: 100%;
+        background: $surface;
+        opacity: 0.9;
+    }
+    MatrixScreen > #processing-overlay.visible {
+        display: grid;
+        place-content: center;
+    }
+    MatrixScreen > #processing-overlay .processing-msg {
+        color: $accent;
+        text-style: bold;
+        text-align: center;
+    }
     """
 
     BINDINGS = [
@@ -337,6 +353,9 @@ class MatrixScreen(Screen):
             self.panels.append(panel)
             yield panel
         yield Footer()
+        # Processing overlay (drawn on top of the grid)
+        with Container(id="processing-overlay"):
+            yield Static("Processing...", classes="processing-msg")
 
     async def on_mount(self) -> None:
         """Load configuration and data on mount."""
@@ -457,6 +476,18 @@ class MatrixScreen(Screen):
         self.is_stale = True
         self._update_footer()
 
+    def _show_processing_overlay(self, message: str = "Processing...") -> None:
+        """Show the processing overlay."""
+        overlay = self.query_one("#processing-overlay", Container)
+        msg_static = overlay.query_one(".processing-msg", Static)
+        msg_static.update(message)
+        overlay.add_class("visible")
+
+    def _hide_processing_overlay(self) -> None:
+        """Hide the processing overlay."""
+        overlay = self.query_one("#processing-overlay", Container)
+        overlay.remove_class("visible")
+
     # Clockwise order through the 2x2 grid: top-left, top-right, bottom-right, bottom-left
     CLOCKWISE_ORDER = [0, 1, 3, 2]
 
@@ -505,12 +536,17 @@ class MatrixScreen(Screen):
             TaskInputModal(panel.quadrant.display_name),
         )
         if parsed and self.client and self.config:
-            await self._create_task(
-                parsed.content,
-                parsed.due_string,
-                parsed.labels,
-                panel.quadrant,
-            )
+            self._show_processing_overlay("Creating task...")
+            try:
+                await self._create_task(
+                    parsed.content,
+                    parsed.due_string,
+                    parsed.labels,
+                    panel.quadrant,
+                    parsed.description,
+                )
+            finally:
+                self._hide_processing_overlay()
 
     async def _create_task(
         self,
@@ -518,6 +554,7 @@ class MatrixScreen(Screen):
         due_string: str | None,
         labels: list[str],
         quadrant: Quadrant,
+        description: str = "",
     ) -> None:
         """Create a task via API."""
         if not self.client or not self.config:
@@ -535,6 +572,7 @@ class MatrixScreen(Screen):
                 section_id=section_id,
                 due_string=due_string,
                 labels=labels,
+                description=description,
             )
             self.notify("Task created")
             await self._refresh_data()
@@ -557,12 +595,14 @@ class MatrixScreen(Screen):
 
         parsed = await self.app.push_screen_wait(TaskEditModal(task))
         if parsed:
+            self._show_processing_overlay("Updating task...")
             try:
                 await self.client.update_task(
                     task.id,
                     content=parsed.content,
                     due_string=parsed.due_string,
                     labels=parsed.labels,
+                    description=parsed.description,
                 )
                 self.notify("Task updated")
                 await self._refresh_data()
@@ -570,6 +610,8 @@ class MatrixScreen(Screen):
                 self._enter_offline()
             except TodoistError as e:
                 self.notify(f"Error updating task: {e.message}", severity="error")
+            finally:
+                self._hide_processing_overlay()
 
     @work
     async def action_show_detail(self) -> None:
@@ -594,6 +636,7 @@ class MatrixScreen(Screen):
         if not task or not self.client:
             return
 
+        self._show_processing_overlay("Completing task...")
         try:
             await self.client.complete_task(task.id)
             self.notify("Task completed")
@@ -602,6 +645,8 @@ class MatrixScreen(Screen):
             self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error completing task: {e.message}", severity="error")
+        finally:
+            self._hide_processing_overlay()
 
     async def action_delete_task(self) -> None:
         """Delete the selected task."""
@@ -614,6 +659,7 @@ class MatrixScreen(Screen):
         if not task or not self.client:
             return
 
+        self._show_processing_overlay("Deleting task...")
         try:
             await self.client.delete_task(task.id)
             self.notify("Task deleted")
@@ -622,6 +668,8 @@ class MatrixScreen(Screen):
             self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error deleting task: {e.message}", severity="error")
+        finally:
+            self._hide_processing_overlay()
 
     async def _move_task(self, direction: int) -> None:
         """Move task to adjacent quadrant. direction: +1 forward, -1 back."""
@@ -644,6 +692,7 @@ class MatrixScreen(Screen):
             self.notify("Target section not configured", severity="error")
             return
 
+        self._show_processing_overlay("Moving task...")
         try:
             await self.client.move_task(task.id, target_section_id)
             self.notify(f"Moved to {target_quadrant.display_name}")
@@ -652,6 +701,8 @@ class MatrixScreen(Screen):
             self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error moving task: {e.message}", severity="error")
+        finally:
+            self._hide_processing_overlay()
 
     async def action_move_task_forward(self) -> None:
         """Move task to next quadrant."""
@@ -681,6 +732,7 @@ class MatrixScreen(Screen):
             self.notify("Target section not configured", severity="error")
             return
 
+        self._show_processing_overlay("Moving task...")
         try:
             await self.client.move_task(task.id, section_id)
             self.notify(f"Moved to {target.display_name}")
@@ -689,6 +741,8 @@ class MatrixScreen(Screen):
             self._enter_offline()
         except TodoistError as e:
             self.notify(f"Error moving task: {e.message}", severity="error")
+        finally:
+            self._hide_processing_overlay()
 
     async def action_move_to_quadrant_1(self) -> None:
         await self._move_task_to_quadrant(Quadrant.DO_NOW)
