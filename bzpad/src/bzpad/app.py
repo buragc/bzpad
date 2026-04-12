@@ -300,10 +300,12 @@ class MatrixScreen(Screen):
         height: 100%;
         background: $surface;
         opacity: 0.9;
+        align: center middle;
+        column-span: 2;
+        row-span: 2;
     }
     MatrixScreen > #processing-overlay.visible {
-        display: grid;
-        place-content: center;
+        display: block;
     }
     MatrixScreen > #processing-overlay .processing-msg {
         color: $accent;
