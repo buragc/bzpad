@@ -207,7 +207,7 @@ class TaskEditModal(ModalScreen[ParsedTask | None]):
 
     def __init__(self, task: Task) -> None:
         super().__init__()
-        self.task = task
+        self._task = task
 
     def _build_prefill(self) -> tuple[str, str]:
         """Build prefilled input strings from task data.
@@ -215,14 +215,14 @@ class TaskEditModal(ModalScreen[ParsedTask | None]):
         Returns (task_text, description) where task_text is the content
         line and description is pre-filled in the desc field.
         """
-        parts = [self.task.content]
-        for label in self.task.labels:
+        parts = [self._task.content]
+        for label in self._task.labels:
             parts.append(f"#{label}")
-        if self.task.due and self.task.due.string:
-            parts.append(f"due:{self.task.due.string}")
-        elif self.task.due and self.task.due.date:
-            parts.append(f"due:{self.task.due.date}")
-        return (" ".join(parts), self.task.description)
+        if self._task.due and self._task.due.string:
+            parts.append(f"due:{self._task.due.string}")
+        elif self._task.due and self._task.due.date:
+            parts.append(f"due:{self._task.due.date}")
+        return (" ".join(parts), self._task.description)
 
     def compose(self) -> ComposeResult:
         task_text, description = self._build_prefill()
